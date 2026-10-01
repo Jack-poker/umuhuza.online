@@ -213,9 +213,9 @@ CREATE TABLE IF NOT EXISTS admin_logs (
 
 INSERT INTO plans (name, price, duration_months, listing_limit, featured, ranking_priority) VALUES
 ('Free', 0, 1, 5, 0, 1),
-('Premium', 150000, 1, 20, 1, 2),
-('Super', 400000, 1, 9999, 1, 3)
-ON DUPLICATE KEY UPDATE name=VALUES(name);
+('Premium', 3000, 1, 20, 1, 2),
+('Super', 5000, 1, 9999, 1, 3)
+ON DUPLICATE KEY UPDATE name=VALUES(name), price=VALUES(price);
 
 INSERT INTO categories (name, slug) VALUES
 ('Real Estate', 'real-estate'),

@@ -10,12 +10,12 @@ $topProviders = $topProviders ?? [];
 $recentListings = $recentListings ?? [];
 $requests = $requests ?? [];
 $categories = $categories ?? [
-  ['icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 10.5L12 3l9 7.5V21a1 1 0 0 1-1 1h-4v-6H8v6H4a1 1 0 0 1-1-1v-10.5z"/></svg>', 'title' => 'Real Estate', 'slug' => 'real-estate', 'subtitle' => 'Properties, land, and rentals'],
-  ['icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h10"/><path d="M18 17h2v2h-2z"/></svg>', 'title' => 'Technical Service', 'slug' => 'technical-service', 'subtitle' => 'Repairs, installation, and IT support'],
-  ['icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M4 12h16M8 6l-4 6 4 6M16 6l4 6-4 6"/></svg>', 'title' => 'Plumbing', 'slug' => 'plumbing', 'subtitle' => 'Urgent home and business maintenance'],
-  ['icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="4"/></svg>', 'title' => 'Electrical', 'slug' => 'electrical', 'subtitle' => 'Power, lighting, and wiring specialists'],
-  ['icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 7h18M6 7v10m12-10v10M8 17h8"/><path d="M7 12h10"/></svg>', 'title' => 'Logistics', 'slug' => 'logistics', 'subtitle' => 'Transport and delivery services'],
-  ['icon' => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 7h14a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z"/><path d="M8 11h8M8 15h5"/></svg>', 'title' => 'General Services', 'slug' => 'services', 'subtitle' => 'Cleaning, events, and daily help'],
+  ['icon' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>', 'title' => 'Real Estate & Properties', 'slug' => 'real-estate', 'subtitle' => 'Houses, apartments, land & commercial property rentals'],
+  ['icon' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 0-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 0-3-3l6.91-6.91a6 6 0 0 0 7.94-7.94l-3.76 3.76z"></path></svg>', 'title' => 'Technical & IT Services', 'slug' => 'technical-service', 'subtitle' => 'TV repairs, computers, appliances & IT support'],
+  ['icon' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>', 'title' => 'Plumbing & Drainage', 'slug' => 'plumbing', 'subtitle' => 'Pipe leak repair, water pumps & bathroom maintenance'],
+  ['icon' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>', 'title' => 'Electrical & Power', 'slug' => 'electrical', 'subtitle' => 'Wiring, solar systems, generators & lighting installation'],
+  ['icon' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>', 'title' => 'Logistics & Moving', 'slug' => 'logistics', 'subtitle' => 'Transport trucks, house moving & cargo deliveries'],
+  ['icon' => '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>', 'title' => 'General Services & Events', 'slug' => 'services', 'subtitle' => 'Home cleaning, event catering, security & daily help'],
 ];
 $requests = $requests ?? [];
 ?>
@@ -237,6 +237,115 @@ $requests = $requests ?? [];
         </div>
       </div>
     </article>
+  </div>
+</section>
+
+<!-- How System Works Section -->
+<section id="how-it-works" class="container py-5">
+  <div class="section-header text-center mb-5" style="max-width: 650px; margin: 0 auto;">
+    <span class="badge badge-super mb-2" data-i18n="how_it_works_badge">⚡ SIMPLE & INSTANT</span>
+    <h2 class="fw-bold fs-2" data-i18n="how_it_works_title">How UMUHUZA.ONLINE Works</h2>
+    <p class="text-muted-custom fs-6" data-i18n="how_it_works_sub">Connecting service providers, real estate agents, and clients fast and reliably across Rwanda.</p>
+  </div>
+  <div class="row g-4">
+    <div class="col-md-4">
+      <div class="panel p-4 text-center h-100 card-hover border-top border-4 border-primary">
+        <div class="rounded-circle bg-primary-subtle text-primary d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </div>
+        <h4 class="fw-bold mb-2" data-i18n="step1_title">1. Submit request or search</h4>
+        <p class="text-muted-custom small mb-0" data-i18n="step1_desc">Search properties or submit a service request in seconds. No login required.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="panel p-4 text-center h-100 card-hover border-top border-4 border-success">
+        <div class="rounded-circle bg-success-subtle text-success d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <h4 class="fw-bold mb-2" data-i18n="step2_title">2. Instant local matching</h4>
+        <p class="text-muted-custom small mb-0" data-i18n="step2_desc">Our system routes your request directly to verified providers and agents in your sector or district.</p>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="panel p-4 text-center h-100 card-hover border-top border-4 border-warning">
+        <div class="rounded-circle bg-warning-subtle text-warning d-inline-flex align-items-center justify-content-center mb-3" style="width: 64px; height: 64px;">
+          <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.9.33 1.79.63 2.65a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.43-1.18a2 2 0 0 1 2.11-.45c.86.3 1.75.51 2.65.63A2 2 0 0 1 22 16.92z"/></svg>
+        </div>
+        <h4 class="fw-bold mb-2" data-i18n="step3_title">3. Direct contact</h4>
+        <p class="text-muted-custom small mb-0" data-i18n="step3_desc">Call or message property owners or service providers on WhatsApp directly with zero commission.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Subscription Plans Section -->
+<section id="subscriptions" class="container py-5">
+  <div class="section-header text-center mb-5" style="max-width: 650px; margin: 0 auto;">
+    <span class="badge badge-super mb-2" data-i18n="pricing_badge">💎 SUBSCRIPTIONS & PLANS</span>
+    <h2 class="fw-bold fs-2" data-i18n="pricing_title">Service Provider & Agent Subscriptions</h2>
+    <p class="text-muted-custom fs-6" data-i18n="pricing_sub">Choose the right plan to boost your visibility and get more clients across Rwanda.</p>
+  </div>
+  <div class="row g-4 justify-content-center">
+    <!-- Free Plan -->
+    <div class="col-lg-4 col-md-6">
+      <div class="panel p-4 h-100 d-flex flex-column card-hover position-relative">
+        <div class="mb-3">
+          <span class="badge bg-secondary mb-2" data-i18n="free_plan_tag">BASIC</span>
+          <h3 class="fw-bold" data-i18n="free_plan_name">Free Plan</h3>
+          <div class="display-6 fw-bold text-dark my-2">0 <small class="fs-6 text-muted-custom">RWF / mo</small></div>
+          <p class="text-muted-custom small" data-i18n="free_plan_desc">Ideal for new users getting started on the platform.</p>
+        </div>
+        <hr />
+        <ul class="list-unstyled flex-fill mb-4 small space-y-2">
+          <li class="d-flex align-items-center gap-2 mb-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="text-success"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="free_feat_1">Up to 5 listings per week</span></li>
+          <li class="d-flex align-items-center gap-2 mb-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="text-success"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="free_feat_2">Standard search visibility</span></li>
+          <li class="d-flex align-items-center gap-2 mb-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="text-success"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="free_feat_3">5 free instant leads monthly</span></li>
+          <li class="d-flex align-items-center gap-2 mb-2 text-muted"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> <span data-i18n="free_feat_4">Delayed leads throttling</span></li>
+        </ul>
+        <a href="?route=register" class="btn btn-outline-primary w-100" data-i18n="start_free">Start Free</a>
+      </div>
+    </div>
+
+    <!-- Premium Plan -->
+    <div class="col-lg-4 col-md-6">
+      <div class="panel p-4 h-100 d-flex flex-column card-hover position-relative border border-2 border-primary shadow-sm" style="background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);">
+        <div class="position-absolute top-0 end-0 m-3"><span class="badge badge-super-premium" data-i18n="popular">MOST POPULAR</span></div>
+        <div class="mb-3">
+          <span class="badge bg-primary mb-2" data-i18n="premium_plan_tag">GROWTH</span>
+          <h3 class="fw-bold text-primary" data-i18n="premium_plan_name">Premium Plan</h3>
+          <div class="display-6 fw-bold text-dark my-2">3,000 <small class="fs-6 text-muted-custom">RWF / mo</small></div>
+          <p class="text-muted-custom small" data-i18n="premium_plan_desc">Designed for agents and providers who want more client leads.</p>
+        </div>
+        <hr />
+        <ul class="list-unstyled flex-fill mb-4 small space-y-2">
+          <li class="d-flex align-items-center gap-2 mb-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="text-success"><polyline points="20 6 9 17 4 12"/></svg> <strong data-i18n="prem_feat_1">Up to 20 listings per week</strong></li>
+          <li class="d-flex align-items-center gap-2 mb-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="text-success"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="prem_feat_2">Priority search ranking</span></li>
+          <li class="d-flex align-items-center gap-2 mb-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="text-success"><polyline points="20 6 9 17 4 12"/></svg> <strong data-i18n="prem_feat_3">Instant lead notifications</strong></li>
+          <li class="d-flex align-items-center gap-2 mb-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="text-success"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="prem_feat_4">Verified Provider Badge</span></li>
+        </ul>
+        <a href="?route=register" class="btn btn-primary w-100 fw-semibold" data-i18n="get_premium">Upgrade to Premium</a>
+      </div>
+    </div>
+
+    <!-- Super Premium Plan -->
+    <div class="col-lg-4 col-md-6">
+      <div class="panel p-4 h-100 d-flex flex-column card-hover position-relative">
+        <div class="mb-3">
+          <span class="badge bg-warning text-dark mb-2" data-i18n="super_plan_tag">VIP EXECUTIVE</span>
+          <h3 class="fw-bold text-dark" data-i18n="super_plan_name">Super VIP Plan</h3>
+          <div class="display-6 fw-bold text-dark my-2">5,000 <small class="fs-6 text-muted-custom">RWF / mo</small></div>
+          <p class="text-muted-custom small" data-i18n="super_plan_desc">Get #1 top placement among agents and service providers in Rwanda.</p>
+        </div>
+        <hr />
+        <ul class="list-unstyled flex-fill mb-4 small space-y-2">
+          <li class="d-flex align-items-center gap-2 mb-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="text-success"><polyline points="20 6 9 17 4 12"/></svg> <strong data-i18n="super_feat_1">Unlimited listings</strong></li>
+          <li class="d-flex align-items-center gap-2 mb-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="text-success"><polyline points="20 6 9 17 4 12"/></svg> <strong data-i18n="super_feat_2">#1 Top Placement in search</strong></li>
+          <li class="d-flex align-items-center gap-2 mb-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="text-success"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="super_feat_3">Instant lead delivery & SMS</span></li>
+          <li class="d-flex align-items-center gap-2 mb-2"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" class="text-success"><polyline points="20 6 9 17 4 12"/></svg> <span data-i18n="super_feat_4">VIP Featured Badge & Dedicated Support</span></li>
+        </ul>
+        <a href="?route=register" class="btn btn-warning w-100 fw-semibold text-dark" data-i18n="get_super">Get Super VIP</a>
+      </div>
+    </div>
   </div>
 </section>
 

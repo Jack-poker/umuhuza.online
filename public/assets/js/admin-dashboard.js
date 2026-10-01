@@ -70,10 +70,13 @@
 
   function switchView(target) {
     viewPanels.forEach(function (panel) {
-      panel.classList.toggle('active', panel.getAttribute('data-view') === target);
+      var isActive = panel.getAttribute('data-view') === target;
+      panel.classList.toggle('active', isActive);
+      panel.style.display = isActive ? 'block' : 'none';
     });
     navItems.forEach(function (item) {
-      item.classList.toggle('active', item.getAttribute('data-ad-view') === target);
+      var isItemActive = item.getAttribute('data-ad-view') === target && !item.classList.contains('ad-submenu-item');
+      item.classList.toggle('active', isItemActive);
     });
     if (viewMeta[target]) {
       if (pageEyebrow) pageEyebrow.textContent = viewMeta[target].eyebrow;
@@ -85,7 +88,7 @@
   }
 
   navItems.forEach(function (item) {
-    item.addEventListener('click', function () {
+    item.addEventListener('click', function (e) {
       var target = item.getAttribute('data-ad-view');
       if (target) switchView(target);
     });
@@ -121,7 +124,8 @@
 
   /* Submenu items switch view and navigate to sub-tabs */
   document.querySelectorAll('.ad-submenu-item[data-ad-view]').forEach(function (item) {
-    item.addEventListener('click', function () {
+    item.addEventListener('click', function (e) {
+      e.stopPropagation();
       document.querySelectorAll('.ad-submenu-item').forEach(function (i) { i.classList.remove('active'); });
       item.classList.add('active');
       
@@ -130,7 +134,7 @@
       if (target) {
         switchView(target);
         if (subTab) {
-          var tabBtn = document.querySelector(`.ad-view[data-view="${target}"] .ad-tab[data-tab="${subTab}"]`);
+          var tabBtn = document.querySelector('.ad-view[data-view="' + target + '"] .ad-tab[data-tab="' + subTab + '"]');
           if (tabBtn) {
             tabBtn.click();
           }

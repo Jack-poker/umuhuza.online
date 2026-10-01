@@ -1,9 +1,15 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.cookie_httponly', 1);
+    ini_set('session.use_only_cookies', 1);
+    ini_set('session.gc_maxlifetime', 86400); // 24-hour session lifetime
+    session_start();
+}
 
 require_once __DIR__ . '/app/config/constants.php';
 require_once __DIR__ . '/app/config/database.php';
 require_once __DIR__ . '/app/helpers/security.php';
+generateCsrfToken();
 require_once __DIR__ . '/app/helpers/functions.php';
 require_once __DIR__ . '/app/helpers/location.php';
 require_once __DIR__ . '/app/helpers/ranking.php';
@@ -55,6 +61,12 @@ if ($route === 'login-submit') {
         exit;
     }
     (new AuthController())->login($pdo);
+}
+if ($route === 'forgot-password-submit') {
+    (new AuthController())->forgotPassword($pdo);
+}
+if ($route === 'update-profile') {
+    (new UserController())->updateProfile($pdo);
 }
 if ($route === 'create-listing') {
     if (!checkRateLimit('create_listing', 10, 3600)) {
@@ -217,11 +229,12 @@ if ($pdo) {
             'phone' => $provider['phone'],
             'whatsapp' => $provider['whatsapp'],
             'rating' => $avgRating,
-            'service_category' => $providerListings[0]['category_name'] ?? 'General Service',
+            'service_category' => !empty($provider['service_category']) ? $provider['service_category'] : ($providerListings[0]['category_name'] ?? 'General Service'),
             'distance' => sprintf('%.1f km', 1.0 + (count($topProviders) * 0.3)),
             'provider_kind' => $providerKind,
-            'province' => $providerListings[0]['province'] ?? '',
-            'district' => $providerListings[0]['district'] ?? '',
+            'province' => $providerListings[0]['province'] ?? $provider['province'] ?? '',
+            'district' => $providerListings[0]['district'] ?? $provider['district'] ?? '',
+            'profile_image' => $provider['profile_image'] ?? null,
         ];
     }
 }
@@ -277,6 +290,9 @@ switch ($route) {
         break;
     case 'login':
         include __DIR__ . '/views/auth/login-simple.php';
+        break;
+    case 'forgot-password':
+        include __DIR__ . '/views/auth/forgot-password.php';
         break;
     case 'provider-dashboard':
         $data = (new UserController())->providerDashboard($pdo);

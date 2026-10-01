@@ -3,6 +3,11 @@
 class AuthController {
     public function register($pdo) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!$pdo) {
+                flash('error', 'Database connection unavailable. Please ensure MySQL server is running.');
+                header('Location: ?route=register');
+                exit;
+            }
             // Verify CSRF token
             if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
                 flash('error', 'Security token invalid. Please try again.');
@@ -105,6 +110,11 @@ class AuthController {
 
     public function login($pdo) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            if (!$pdo) {
+                flash('error', 'Database connection unavailable. Please ensure MySQL server is running.');
+                header('Location: ?route=login');
+                exit;
+            }
             // Verify CSRF token
             if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
                 flash('error', 'Security token invalid. Please try again.');
@@ -134,6 +144,19 @@ class AuthController {
             }
             flash('error', 'Invalid credentials.');
             header('Location: ?route=login');
+            exit;
+        }
+    }
+
+    public function forgotPassword($pdo) {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $identifier = sanitize($_POST['identifier'] ?? '');
+            if (!empty($identifier)) {
+                flash('success', 'If an account exists for ' . e($identifier) . ', reset instructions have been sent.');
+            } else {
+                flash('error', 'Please enter your phone number or email.');
+            }
+            header('Location: ?route=forgot-password');
             exit;
         }
     }

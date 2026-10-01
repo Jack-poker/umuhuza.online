@@ -187,7 +187,9 @@ class RequestController {
                     ]);
 
                     if ($status === 'delivered') {
-                        NotificationModel::create($pdo, $providerId, 'New request in ' . trim(($district ?: $province) . ' / ' . ($sector ?: '')) . ': ' . sanitize($reqType));
+                        $clientName = sanitize($_POST['name'] ?? 'A client');
+                        $notifMsg = "New request from {$clientName} in " . trim(($district ?: $province) . ' / ' . ($sector ?: '')) . ": " . sanitize($reqType) . " - " . sanitize(mb_substr($reqDesc, 0, 80));
+                        NotificationModel::create($pdo, $providerId, $notifMsg, $requestId);
                         $matched++;
                     }
                 }

@@ -49,20 +49,29 @@
           <option value="en">English</option>
           <option value="rw">Kinyarwanda</option>
         </select>
-        <a class="btn btn-outline-primary btn-sm d-none d-lg-inline-flex" href="?route=register" data-i18n="post_listing">Post Listing</a>
-        <?php if (isLoggedIn()): $notificationCount = NotificationModel::unreadCount($pdo, (int) ($_SESSION['user_id'] ?? 0)); ?>
-          <a id="notificationBell" class="btn btn-light btn-sm position-relative" href="?route=provider-dashboard" data-notification-count="<?= (int) $notificationCount ?>">
+        <a class="btn btn-outline-primary btn-sm" href="?route=register" data-i18n="post_listing">Post Listing</a>
+        <?php 
+          $currRoute = $_GET['route'] ?? 'home';
+          $isDashboardRoute = in_array($currRoute, ['provider-dashboard', 'admin-dashboard'], true);
+        ?>
+        <?php if (isLoggedIn()): $notificationCount = $pdo ? NotificationModel::unreadCount($pdo, (int) ($_SESSION['user_id'] ?? 0)) : 0; ?>
+          <a class="btn btn-sm btn-primary" href="<?= isAdmin() ? '?route=admin-dashboard' : '?route=provider-dashboard' ?>">Dashboard</a>
+          <a id="notificationBell" class="btn btn-light btn-sm position-relative" href="<?= isAdmin() ? '?route=admin-dashboard' : '?route=provider-dashboard' ?>" data-notification-count="<?= (int) $notificationCount ?>">
             <span data-i18n="alerts">Alerts</span>
             <?php if ($notificationCount > 0): ?><span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"><?= (int) $notificationCount ?></span><?php endif; ?>
           </a>
-          <a class="profile-avatar-wrapper" href="?route=provider-dashboard" title="Your profile">
+          <a class="profile-avatar-wrapper" href="<?= isAdmin() ? '?route=admin-dashboard' : '?route=provider-dashboard' ?>" title="Your profile">
             <?php if (!empty($currentUser['profile_image'])): ?>
               <img class="profile-avatar" src="<?= e($currentUser['profile_image']) ?>" alt="Profile photo" loading="lazy" />
             <?php else: ?>
               <span class="profile-avatar profile-avatar-fallback"><?= strtoupper(substr(($currentUser['full_name'] ?? $currentUser['username'] ?? 'PR'), 0, 2)) ?></span>
             <?php endif; ?>
           </a>
-          <a class="btn btn-outline-secondary btn-sm" href="?route=logout" data-i18n="logout">Logout</a>
+          <a class="btn btn-outline-danger btn-sm" href="?route=logout" data-i18n="logout">Logout</a>
+        <?php else: ?>
+          <?php if ($currRoute !== 'login'): ?>
+            <a class="btn btn-primary btn-sm" href="?route=login" data-i18n="login">Login</a>
+          <?php endif; ?>
         <?php endif; ?>
       </div>
     </div>

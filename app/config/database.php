@@ -1,6 +1,6 @@
 <?php
 
-$DB_HOST = getenv('DB_HOST') ?: 'localhost';
+$DB_HOST = getenv('DB_HOST') ?: '127.0.0.1';
 $DB_NAME = getenv('DB_NAME') ?: 'rwanda_marketplace';
 $DB_USER = getenv('DB_USER') ?: 'root';
 $DB_PASS = getenv('DB_PASS') ?: '';
@@ -50,9 +50,9 @@ try {
     }
 }
 
-// Auto-migration check: ensure all expected columns are present in the database tables
-// Auto-migration check: ensure all expected tables and columns are present in the database
-if ($pdo) {
+// Auto-migration check: run only if database structure has not been cached
+$migrationMarker = __DIR__ . '/../../public/assets/.migrated';
+if ($pdo && !file_exists($migrationMarker)) {
     try {
         // 1. Verify and create missing tables using schema.sql
         $stmt = $pdo->query("SHOW TABLES");
@@ -138,6 +138,9 @@ if ($pdo) {
         // Check notifications table
         $stmt = $pdo->query("DESCRIBE notifications");
         $existingNotifCols = array_column($stmt->fetchAll(), 'Field');
+        if (!in_array('request_id', $existingNotifCols)) {
+            $pdo->exec("ALTER TABLE notifications ADD COLUMN request_id INT NULL AFTER user_id");
+        }
         if (!in_array('is_archived', $existingNotifCols)) {
             $pdo->exec("ALTER TABLE notifications ADD COLUMN is_archived TINYINT(1) NOT NULL DEFAULT 0 AFTER is_read");
         }
@@ -149,9 +152,9 @@ if ($pdo) {
         }
         
         $sounds = [
-            'request.wav' => 587.33, // D5 note for new request/lead
-            'success.wav' => 880.00, // A5 note for payment/subscription approval
-            'listing.wav' => 698.46, // F5 note for listing approval
+            'request.wav' => 587.33,
+            'success.wav' => 880.00,
+            'listing.wav' => 698.46,
         ];
         
         foreach ($sounds as $filename => $freq) {
@@ -163,7 +166,7 @@ if ($pdo) {
                 $data = '';
                 for ($i = 0; $i < $numSamples; $i++) {
                     $t = $i / $sampleRate;
-                    $amplitude = exp(-5 * $t); // decay
+                    $amplitude = exp(-5 * $t);
                     $val = 128 + 127 * $amplitude * sin(2 * M_PI * $freq * $t);
                     $data .= chr((int)round($val));
                 }
@@ -171,6 +174,18 @@ if ($pdo) {
                 @file_put_contents($soundPath, $header . $data);
             }
         }
+        
+        // Clean up test/QA dummy accounts and update plan prices in database
+        try {
+            $pdo->exec("DELETE FROM users WHERE LOWER(full_name) LIKE '%test%' OR LOWER(full_name) LIKE '%qa%' OR LOWER(username) LIKE '%test%' OR LOWER(full_name) LIKE '%crud%' OR LOWER(username) LIKE '%crud%'");
+            $pdo->exec("UPDATE plans SET price = 3000 WHERE id = 2 OR LOWER(name) LIKE '%premium%'");
+            $pdo->exec("UPDATE plans SET price = 5000 WHERE id = 3 OR LOWER(name) LIKE '%super%'");
+        } catch (PDOException $e) {
+            // Silently continue if clean up fails
+        }
+
+        // Touch marker file to cache migration completion
+        @touch($migrationMarker);
     } catch (PDOException $migrationError) {
         error_log("Failed to auto-migrate database: " . $migrationError->getMessage());
     }
@@ -194,7 +209,7 @@ if ($pdo) {
                 $updateStmt->execute([$match['id']]);
                 
                 // Create the notification for the provider
-                NotificationModel::create($pdo, (int)$match['provider_id'], 'New request in ' . trim(($match['district'] ?: $match['province']) . ' / ' . ($match['sector'] ?: '')) . ': ' . sanitize($match['type'] ?? 'service'));
+                NotificationModel::create($pdo, (int)$match['provider_id'], 'New request in ' . trim(($match['district'] ?: $match['province']) . ' / ' . ($match['sector'] ?: '')) . ': ' . sanitize($match['type'] ?? 'service'), (int)$match['request_id']);
             }
         }
     } catch (PDOException $e) {

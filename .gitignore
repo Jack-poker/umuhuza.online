@@ -1,2 +1,3 @@
 # Ignore ngrok executable
 ngrok.exe
+public/assets/.migrated

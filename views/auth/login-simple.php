@@ -8,6 +8,17 @@
       <p class="login-subtitle">Sign in to UMUHUZA.ONLINE</p>
     </div>
 
+    <?php if (isLoggedIn()): ?>
+      <div class="alert alert-info border-info p-3 mb-4 rounded-3 text-start">
+        <div class="fw-bold mb-1">You are already logged in!</div>
+        <div class="small text-muted-custom mb-3">Signed in as: <strong><?= e($_SESSION['full_name'] ?? $_SESSION['username'] ?? 'Active User') ?></strong></div>
+        <div class="d-flex gap-2">
+          <a href="<?= isAdmin() ? '?route=admin-dashboard' : '?route=provider-dashboard' ?>" class="btn btn-sm btn-primary">Go to Dashboard</a>
+          <a href="?route=logout" class="btn btn-sm btn-outline-danger">Logout to switch account</a>
+        </div>
+      </div>
+    <?php endif; ?>
+
     <!-- Login Form -->
     <form method="POST" action="?route=login-submit" class="login-form">
       <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
