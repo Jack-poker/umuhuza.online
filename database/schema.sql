@@ -230,3 +230,30 @@ INSERT INTO provinces (name) VALUES
 ('Northern'),
 ('Eastern')
 ON DUPLICATE KEY UPDATE name=VALUES(name);
+
+-- Sample demo users (password hash = bcrypt of 'password123')
+-- Admin account
+INSERT INTO users (id, full_name, username, phone, email, password_hash, role, account_type, province, district, status) VALUES
+(1, 'Admin UMUHUZA', 'admin', '+250788000001', 'admin@umuhuza.online', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'agent', 'Kigali', 'Gasabo', 'active')
+ON DUPLICATE KEY UPDATE full_name=VALUES(full_name);
+
+-- Sample client
+INSERT INTO users (id, full_name, username, phone, email, password_hash, role, account_type, province, district, status) VALUES
+(2, 'Jean Pierre Habimana', 'jeanpierre', '+250788111001', 'jeanpierre@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'client', 'agent', 'Kigali', 'Gasabo', 'active')
+ON DUPLICATE KEY UPDATE full_name=VALUES(full_name);
+
+-- Sample provider
+INSERT INTO users (id, full_name, username, phone, email, password_hash, role, account_type, province, district, status) VALUES
+(3, 'Kigali Realty Hub', 'kigalirealty', '+250788222001', 'info@kigalirealty.rw', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'provider', 'agent', 'Kigali', 'Gasabo', 'active')
+ON DUPLICATE KEY UPDATE full_name=VALUES(full_name);
+
+-- Sample listings
+INSERT INTO listings (user_id, category_id, title, description, price, province, district, sector, cell, plan_id, status) VALUES
+(3, 1, 'Modern 2-Bedroom Apartment in Kigali', 'Spacious modern apartment with great views, located in a quiet neighborhood. Includes parking and 24/7 security.', 350000, 'Kigali', 'Gasabo', 'Remera', 'Rukiri I', 1, 'approved'),
+(3, 3, 'Office Renovation Services', 'Professional office renovation and interior design services. Quality materials and experienced team.', 0, 'Kigali', 'Nyarugenge', 'Muhima', 'Muhima', 1, 'approved')
+ON DUPLICATE KEY UPDATE title=VALUES(title);
+
+-- Sample user plan
+INSERT INTO user_plans (user_id, plan_id, status) VALUES
+(3, 1, 'active')
+ON DUPLICATE KEY UPDATE status=VALUES(status);

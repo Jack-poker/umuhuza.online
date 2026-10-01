@@ -1,3 +1,25 @@
 # Ignore ngrok executable
 ngrok.exe
+
+# Migration marker
 public/assets/.migrated
+
+# Environment configuration
+.env
+grop.env
+
+# Uploaded files (user-generated content)
+public/uploads/*
+!public/uploads/.gitkeep
+
+# IDE and OS files
+.vscode/
+.idea/
+*.swp
+*.swo
+Thumbs.db
+.DS_Store
+
+# PHP dependencies
+vendor/
+composer.lock
