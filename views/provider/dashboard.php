@@ -21,7 +21,7 @@ $activePlanId = (int)($plan['id'] ?? 1);
       <div class="ad-brand-icon">P</div>
       <div class="ad-brand-text">
         <strong>UMUHUZA.ONLINE</strong>
-        <span>Provider Hub</span>
+        <span><?php echo __('provider_hub'); ?></span>
       </div>
     </div>
   </div>

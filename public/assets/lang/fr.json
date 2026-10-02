@@ -1,0 +1,17 @@
+{
+  "nav_home": "Accueil",
+  "nav_marketplace": "Marché",
+  "nav_login": "Connexion",
+  "nav_register": "Inscription",
+  "btn_submit": "Soumettre",
+  "btn_cancel": "Annuler",
+  "dashboard_title": "Tableau de bord",
+  "dashboard_welcome": "Bienvenue, %s!",
+  "form_label_name": "Nom complet",
+  "form_label_email": "Courriel",
+  "form_label_phone": "Téléphone",
+  "form_label_location": "Localisation",
+  "error_required": "Ce champ est requis.",
+  "language": "Langue",
+  "provider_hub": "Hub du fournisseur"
+}

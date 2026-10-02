@@ -344,7 +344,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   };
 
-  const langSwitcher = document.getElementById('langSwitcher');
   const applyTranslations = function (lang) {
     const dictionary = translations[lang] || translations.en;
 
@@ -375,17 +374,27 @@ document.addEventListener('DOMContentLoaded', function () {
       }
     });
 
-    if (langSwitcher) langSwitcher.value = lang;
+    const currentLangLabel = document.getElementById('currentLangLabel');
+    if (currentLangLabel) {
+      currentLangLabel.textContent = lang.toUpperCase();
+    }
+    
     document.documentElement.lang = lang;
     localStorage.setItem('market_lang', lang);
   };
 
   const savedLang = localStorage.getItem('market_lang') || 'en';
-  if (langSwitcher) {
-    langSwitcher.addEventListener('change', function (event) {
-      applyTranslations(event.target.value);
+  
+  document.querySelectorAll('.lang-switch-btn').forEach(function(btn) {
+    btn.addEventListener('click', function(event) {
+        event.preventDefault();
+        const selectedLang = this.dataset.lang;
+        const url = new URL(window.location);
+        url.searchParams.set('lang', selectedLang);
+        window.location.href = url.toString();
     });
-  }
+  });
+  
   applyTranslations(savedLang);
 
   const forms = document.querySelectorAll('form');

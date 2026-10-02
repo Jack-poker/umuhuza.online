@@ -11,20 +11,17 @@ echo ║  UMUHUZA.ONLINE - Development Server                             ║
 echo ╚════════════════════════════════════════════════════════════════════╝
 echo.
 
-REM Check if PHP is available
-where php >nul 2>nul
-if %errorlevel% neq 0 (
-    echo ❌ ERROR: PHP not found in PATH
-    echo.
-    echo Please install PHP or add it to your system PATH
-    echo.
+REM Use existing XAMPP PHP executable
+set "PHPEXEC=C:\xampp\php\php.exe"
+if not exist "%PHPEXEC%" (
+    echo ❌ ERROR: php.exe not found at %PHPEXEC%
     pause
     exit /b 1
 )
 
 REM Display PHP version
 echo ✓ PHP Found:
-php -v
+"%PHPEXEC%" -v
 echo.
 
 REM Set variables
@@ -46,7 +43,7 @@ echo.
 
 REM Start the server
 cd /d "%DOCROOT%"
-php -S %HOST%:%PORT%
+"%PHPEXEC%" -S %HOST%:%PORT%
 
 REM If we get here, something went wrong
 echo.

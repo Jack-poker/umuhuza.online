@@ -1,0 +1,16 @@
+{
+  "nav_home": "Ahabanza",
+  "nav_marketplace": "Isoko",
+  "nav_login": "Injira",
+  "nav_register": "Iyandikishe",
+  "btn_submit": "Kohereza",
+  "btn_cancel": "Kureka",
+  "dashboard_title": "Inyandiko",
+  "dashboard_welcome": "Murakaza neza, %s!",
+  "form_label_name": "Izina ryuzuye",
+  "form_label_email": "Imeyili",
+  "form_label_phone": "Telefoni",
+  "form_label_location": "Aho uri",
+  "error_required": "Uru rubuga rukeneye",
+  "language": "Ururimi"
+}

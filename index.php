@@ -4,6 +4,8 @@ if (session_status() === PHP_SESSION_NONE) {
     ini_set('session.use_only_cookies', 1);
     ini_set('session.gc_maxlifetime', 86400); // 24-hour session lifetime
     session_start();
+    // Load translation helper early
+    require_once __DIR__ . '/app/helpers/i18n.php';
 }
 
 require_once __DIR__ . '/app/config/constants.php';
