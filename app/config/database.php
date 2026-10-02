@@ -5,6 +5,8 @@ $DB_NAME = getenv('DB_NAME') ?: 'rwanda_marketplace';
 $DB_USER = getenv('DB_USER') ?: 'root';
 $DB_PASS = getenv('DB_PASS') ?: '';
 
+require_once __DIR__ . '/vapid.php';
+
 $pdo = null;
 
 try {
@@ -123,6 +125,12 @@ if ($pdo && !file_exists($migrationMarker)) {
         $existingUsersCols = array_column($stmt->fetchAll(), 'Field');
         if (!in_array('service_category', $existingUsersCols)) {
             $pdo->exec("ALTER TABLE users ADD COLUMN service_category VARCHAR(100) NULL AFTER account_type");
+        }
+
+        $stmt = $pdo->query("DESCRIBE requests");
+        $existingRequestsCols = array_column($stmt->fetchAll(), 'Field');
+        if (!in_array('cell', $existingRequestsCols)) {
+            $pdo->exec("ALTER TABLE requests ADD COLUMN cell VARCHAR(100) NULL AFTER sector");
         }
 
         // Check request_matches table

@@ -101,6 +101,7 @@ class UserController {
             'province'         => $province,
             'district'         => $district,
             'sector'           => $sector,
+            'cell'             => sanitize($_POST['cell'] ?? ''),
         ];
 
         // Handle profile photo upload if provided

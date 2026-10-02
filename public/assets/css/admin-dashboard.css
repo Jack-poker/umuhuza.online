@@ -58,11 +58,89 @@ body.admin-exec-page {
   min-height: 100vh;
   display: flex; flex-direction: column;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
-body.admin-exec-page main { padding-top: 0 !important; padding-bottom: 0 !important; background: transparent !important; min-height: auto !important; }
+
+/* Kill ALL global layout wrappers that conflict with admin layout */
+body.admin-exec-page > main,
+body.admin-exec-page > main.pb-5 {
+  padding: 0 !important;
+  margin: 0 !important;
+  background: transparent !important;
+  min-height: 0 !important;
+  display: contents !important; /* Makes this wrapper invisible to layout */
+}
+
+/* Hide marketplace / public elements completely */
 body.admin-exec-page .marketplace-header,
+body.admin-exec-page .marketplace-header *,
+body.admin-exec-page header.marketplace-header,
 body.admin-exec-page .bottom-nav,
-body.admin-exec-page .footer { display: none !important; }
+body.admin-exec-page .footer,
+body.admin-exec-page footer.footer,
+body.admin-exec-page .position-fixed.bottom-0,
+body.admin-exec-page nav.bottom-nav {
+  display: none !important;
+  visibility: hidden !important;
+  height: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+  position: absolute !important;
+  width: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+}
+
+/* Prevent any global styles from overriding admin main */
+body.admin-exec-page .ad-main {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  min-height: calc(100vh - var(--topnav-h)) !important;
+}
+
+/* Reset flash/alert container */
+body.admin-exec-page > main > .position-fixed {
+  z-index: 9999 !important;
+}
+
+/* Reset any global button / link overrides */
+body.admin-exec-page .ad-btn { text-decoration: none !important; }
+body.admin-exec-page .ad-btn:hover { text-decoration: none !important; }
+body.admin-exec-page a.ad-nav-item { text-decoration: none !important; }
+body.admin-exec-page a { color: inherit; }
+
+/* Override global main{padding-top:90px;...} from style.css */
+body.admin-exec-page main {
+  padding-top: 0 !important;
+  padding-bottom: 0 !important;
+  background: transparent !important;
+  min-height: 0 !important;
+}
+body.admin-exec-page main.ad-main {
+  min-height: calc(100vh - var(--topnav-h)) !important;
+  background: var(--ad-bg) !important;
+}
+
+/* Override global body gradient background from style.css */
+body.admin-exec-page {
+  background: var(--ad-bg) !important;
+  animation: none !important;
+}
+
+/* Ensure the ad-topnav sits on top of everything */
+body.admin-exec-page .ad-topnav {
+  z-index: 1100 !important;
+}
+
+/* Prevent any global .fixed-top / .shadow-sm from marketplace-header showing */
+body.admin-exec-page .fixed-top:not(.ad-topnav) {
+  display: none !important;
+  height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
 
 /* ============================================================
    TOP NAVIGATION BAR

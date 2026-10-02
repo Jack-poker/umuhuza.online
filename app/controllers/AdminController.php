@@ -40,6 +40,9 @@ class AdminController {
             'pendingListings' => count(array_filter($listings, fn($item) => ($item['status'] ?? '') === 'pending')),
         ];
 
+        require_once __DIR__ . '/../models/Notification.php';
+        $notifications = NotificationModel::all($pdo, $_SESSION['user_id']);
+
         // 11 Required Admin Analytics
         $totalRequests = count($requests);
         
@@ -87,7 +90,7 @@ class AdminController {
             ];
         }
 
-        return compact('listings', 'requests', 'users', 'payments', 'analytics', 'adminAnalytics', 'verifications');
+        return compact('listings', 'requests', 'users', 'payments', 'analytics', 'adminAnalytics', 'verifications', 'notifications');
     }
 
     public function approvePayment($pdo, $paymentId) {

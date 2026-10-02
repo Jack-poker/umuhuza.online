@@ -11,15 +11,16 @@ class RequestController {
             }
 
             $requestId = RequestModel::create($pdo, [
-                'name' => sanitize($_POST['name'] ?? ''),
-                'phone' => sanitize($_POST['phone'] ?? ''),
-                'whatsapp' => sanitize($_POST['whatsapp'] ?? ''),
-                'province' => sanitize($_POST['province'] ?? ''),
-                'district' => sanitize($_POST['district'] ?? ''),
-                'sector' => sanitize($_POST['sector'] ?? ''),
-                'budget' => sanitize($_POST['budget'] ?? ''),
+                'name'        => sanitize($_POST['name'] ?? ''),
+                'phone'       => sanitize($_POST['phone'] ?? ''),
+                'whatsapp'    => sanitize($_POST['whatsapp'] ?? ''),
+                'province'    => sanitize($_POST['province'] ?? ''),
+                'district'    => sanitize($_POST['district'] ?? ''),
+                'sector'      => sanitize($_POST['sector'] ?? ''),
+                'cell'        => sanitize($_POST['cell'] ?? ''),
+                'budget'      => sanitize($_POST['budget'] ?? ''),
                 'description' => sanitize($_POST['description'] ?? ''),
-                'type' => sanitize($_POST['type'] ?? 'service'),
+                'type'        => sanitize($_POST['type'] ?? 'service'),
             ]);
 
             $matched = 0;

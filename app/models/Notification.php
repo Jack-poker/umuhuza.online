@@ -1,9 +1,45 @@
 <?php
 
 class NotificationModel {
-    public static function create($pdo, $userId, $message, $requestId = null) {
+    public static function create($pdo, $userId, $message, $requestId = null, $url = '/') {
         $stmt = $pdo->prepare('INSERT INTO notifications (user_id, request_id, message, is_read) VALUES (?, ?, ?, 0)');
-        return $stmt->execute([$userId, $requestId, $message]);
+        $res = $stmt->execute([$userId, $requestId, $message]);
+
+        // Dispatch Web Push Notification
+        if ($res && defined('VAPID_PUBLIC_KEY') && class_exists('\Minishlink\WebPush\WebPush')) {
+            $stmtSub = $pdo->prepare('SELECT endpoint, p256dh, auth FROM push_subscriptions WHERE user_id = ?');
+            $stmtSub->execute([$userId]);
+            $subs = $stmtSub->fetchAll();
+
+            if (!empty($subs)) {
+                $auth = [
+                    'VAPID' => [
+                        'subject' => VAPID_SUBJECT,
+                        'publicKey' => VAPID_PUBLIC_KEY,
+                        'privateKey' => VAPID_PRIVATE_KEY,
+                    ],
+                ];
+                $webPush = new \Minishlink\WebPush\WebPush($auth);
+                $payload = json_encode(['title' => 'UMUHUZA Alert', 'body' => $message, 'url' => $url]);
+
+                foreach ($subs as $sub) {
+                    $subscription = \Minishlink\WebPush\Subscription::create([
+                        'endpoint' => $sub['endpoint'],
+                        'publicKey' => $sub['p256dh'],
+                        'authToken' => $sub['auth'],
+                    ]);
+                    $webPush->queueNotification($subscription, $payload);
+                }
+                
+                // Fire and forget
+                foreach ($webPush->flush() as $report) {
+                    if (!$report->isSuccess() && $report->isSubscriptionExpired()) {
+                        $pdo->prepare('DELETE FROM push_subscriptions WHERE endpoint = ?')->execute([$report->getRequest()->getUri()->__toString()]);
+                    }
+                }
+            }
+        }
+        return $res;
     }
 
     public static function all($pdo, $userId) {

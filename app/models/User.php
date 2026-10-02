@@ -85,6 +85,7 @@ class User {
         if (isset($data['province'])) { $fields[] = 'province = ?'; $params[] = trim($data['province']); }
         if (isset($data['district'])) { $fields[] = 'district = ?'; $params[] = trim($data['district']); }
         if (isset($data['sector'])) { $fields[] = 'sector = ?'; $params[] = trim($data['sector']); }
+        if (isset($data['cell'])) { $fields[] = 'cell = ?'; $params[] = trim($data['cell']); }
         if (!empty($data['profile_image'])) { $fields[] = 'profile_image = ?'; $params[] = trim($data['profile_image']); }
         if (!empty($data['password_hash'])) { $fields[] = 'password_hash = ?'; $params[] = $data['password_hash']; }
 

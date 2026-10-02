@@ -166,6 +166,27 @@ if ($route === 'api-mark-read') {
     exit;
 }
 
+if ($route === 'push-subscribe') {
+    header('Content-Type: application/json');
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isLoggedIn() && $pdo) {
+        $json = file_get_contents('php://input');
+        $sub = json_decode($json, true);
+        if ($sub && isset($sub['endpoint'], $sub['keys']['p256dh'], $sub['keys']['auth'])) {
+            $stmt = $pdo->prepare("INSERT INTO push_subscriptions (user_id, endpoint, p256dh, auth) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE p256dh = VALUES(p256dh), auth = VALUES(auth), user_id = VALUES(user_id)");
+            $stmt->execute([
+                $_SESSION['user_id'],
+                $sub['endpoint'],
+                $sub['keys']['p256dh'],
+                $sub['keys']['auth']
+            ]);
+            echo json_encode(['success' => true]);
+            exit;
+        }
+    }
+    echo json_encode(['success' => false]);
+    exit;
+}
+
 if ($route === 'api-archive') {
     header('Content-Type: application/json');
     if (isLoggedIn() && $pdo) {

@@ -23,3 +23,7 @@ Thumbs.db
 # PHP dependencies
 vendor/
 composer.lock
+composer.phar
+
+# Secrets - VAPID keys for push notifications (generate on each server)
+app/config/vapid.php

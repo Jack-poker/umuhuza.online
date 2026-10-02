@@ -31,7 +31,10 @@ CREATE TABLE IF NOT EXISTS users (
   profile_image VARCHAR(255) NULL,
   status VARCHAR(30) NOT NULL DEFAULT 'active',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  INDEX idx_users_role (role)
+  INDEX idx_users_role (role),
+  INDEX idx_users_status (status),
+  INDEX idx_users_account_type (account_type),
+  INDEX idx_users_location (province, district, sector, cell)
 );
 
 CREATE TABLE IF NOT EXISTS user_plans (
@@ -105,7 +108,8 @@ CREATE TABLE IF NOT EXISTS listings (
   FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE,
   FOREIGN KEY (plan_id) REFERENCES plans(id) ON DELETE CASCADE,
   INDEX idx_listing_status (status),
-  INDEX idx_listing_plan (plan_id)
+  INDEX idx_listing_plan (plan_id),
+  INDEX idx_listings_location (province, district, sector, cell)
 );
 
 CREATE TABLE IF NOT EXISTS listing_images (
@@ -128,7 +132,10 @@ CREATE TABLE IF NOT EXISTS requests (
   description TEXT NOT NULL,
   type VARCHAR(50) NOT NULL DEFAULT 'service',
   status VARCHAR(30) NOT NULL DEFAULT 'new',
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_requests_status (status),
+  INDEX idx_requests_type (type),
+  INDEX idx_requests_location (province, district, sector, cell)
 );
 
 CREATE TABLE IF NOT EXISTS request_matches (
@@ -141,7 +148,9 @@ CREATE TABLE IF NOT EXISTS request_matches (
   delivered_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (request_id) REFERENCES requests(id) ON DELETE CASCADE,
-  FOREIGN KEY (provider_id) REFERENCES users(id) ON DELETE CASCADE
+  FOREIGN KEY (provider_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_req_matches_status (status),
+  INDEX idx_req_matches_level (match_level)
 );
 
 CREATE TABLE IF NOT EXISTS listing_views (
@@ -174,7 +183,9 @@ CREATE TABLE IF NOT EXISTS payments (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   approved_at TIMESTAMP NULL,
   FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY (plan_id) REFERENCES plans(id) ON DELETE CASCADE
+  FOREIGN KEY (plan_id) REFERENCES plans(id) ON DELETE CASCADE,
+  INDEX idx_payments_status (status),
+  INDEX idx_payments_txn (transaction_id)
 );
 
 CREATE TABLE IF NOT EXISTS notifications (
@@ -184,7 +195,8 @@ CREATE TABLE IF NOT EXISTS notifications (
   is_read TINYINT(1) NOT NULL DEFAULT 0,
   is_archived TINYINT(1) NOT NULL DEFAULT 0,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  INDEX idx_notif_status (is_read, is_archived)
 );
 
 CREATE TABLE IF NOT EXISTS verification_requests (
@@ -211,6 +223,24 @@ CREATE TABLE IF NOT EXISTS admin_logs (
   FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE CASCADE
 );
 
+CREATE TABLE IF NOT EXISTS login_attempts (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  ip_address VARCHAR(45) NOT NULL UNIQUE,
+  failed_count INT NOT NULL DEFAULT 1,
+  last_attempt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  locked_until TIMESTAMP NULL
+);
+
+CREATE TABLE IF NOT EXISTS push_subscriptions (
+  id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  endpoint VARCHAR(500) NOT NULL UNIQUE,
+  p256dh VARCHAR(255) NOT NULL,
+  auth VARCHAR(255) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
 INSERT INTO plans (name, price, duration_months, listing_limit, featured, ranking_priority) VALUES
 ('Free', 0, 1, 5, 0, 1),
 ('Premium', 3000, 1, 20, 1, 2),
@@ -230,30 +260,3 @@ INSERT INTO provinces (name) VALUES
 ('Northern'),
 ('Eastern')
 ON DUPLICATE KEY UPDATE name=VALUES(name);
-
--- Sample demo users (password hash = bcrypt of 'password123')
--- Admin account
-INSERT INTO users (id, full_name, username, phone, email, password_hash, role, account_type, province, district, status) VALUES
-(1, 'Admin UMUHUZA', 'admin', '+250788000001', 'admin@umuhuza.online', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'agent', 'Kigali', 'Gasabo', 'active')
-ON DUPLICATE KEY UPDATE full_name=VALUES(full_name);
-
--- Sample client
-INSERT INTO users (id, full_name, username, phone, email, password_hash, role, account_type, province, district, status) VALUES
-(2, 'Jean Pierre Habimana', 'jeanpierre', '+250788111001', 'jeanpierre@gmail.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'client', 'agent', 'Kigali', 'Gasabo', 'active')
-ON DUPLICATE KEY UPDATE full_name=VALUES(full_name);
-
--- Sample provider
-INSERT INTO users (id, full_name, username, phone, email, password_hash, role, account_type, province, district, status) VALUES
-(3, 'Kigali Realty Hub', 'kigalirealty', '+250788222001', 'info@kigalirealty.rw', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'provider', 'agent', 'Kigali', 'Gasabo', 'active')
-ON DUPLICATE KEY UPDATE full_name=VALUES(full_name);
-
--- Sample listings
-INSERT INTO listings (user_id, category_id, title, description, price, province, district, sector, cell, plan_id, status) VALUES
-(3, 1, 'Modern 2-Bedroom Apartment in Kigali', 'Spacious modern apartment with great views, located in a quiet neighborhood. Includes parking and 24/7 security.', 350000, 'Kigali', 'Gasabo', 'Remera', 'Rukiri I', 1, 'approved'),
-(3, 3, 'Office Renovation Services', 'Professional office renovation and interior design services. Quality materials and experienced team.', 0, 'Kigali', 'Nyarugenge', 'Muhima', 'Muhima', 1, 'approved')
-ON DUPLICATE KEY UPDATE title=VALUES(title);
-
--- Sample user plan
-INSERT INTO user_plans (user_id, plan_id, status) VALUES
-(3, 1, 'active')
-ON DUPLICATE KEY UPDATE status=VALUES(status);

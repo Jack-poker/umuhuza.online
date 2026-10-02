@@ -1300,54 +1300,35 @@
           </div>
           <div class="ad-panel-body">
             <div class="ad-notif-list">
-              <div class="ad-notif-item unread">
-                <div class="ad-notif-icon" style="background:var(--ad-warning-bg);color:var(--ad-warning);"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg></div>
-                <div class="ad-notif-body">
-                  <strong>Payment Requires Approval</strong>
-                  <p>John Mutabazi submitted a Premium subscription payment of RWF 25,000. Reference: TXN-20240609-001.</p>
+              <?php if (empty($data['notifications'])): ?>
+                <div class="ad-empty-state" style="padding:2rem;text-align:center;color:var(--ad-text-muted);">
+                  <svg class="ad-svg-icon" viewBox="0 0 24 24" width="48" height="48" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.5;margin-bottom:1rem;"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3zm-8.27 4a2 2 0 0 1-3.46 0"></path></svg>
+                  <p>No new notifications</p>
                 </div>
-                <div class="ad-notif-time">2m ago</div>
-              </div>
-              <div class="ad-notif-item unread">
-                <div class="ad-notif-icon" style="background:var(--ad-info-bg);color:var(--ad-info);"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="17" y1="11" x2="23" y2="11"></line></svg></div>
-                <div class="ad-notif-body">
-                  <strong>New Provider Registration</strong>
-                  <p>Marie Uwimana registered as a new service provider (Plumbing). Identity verification pending.</p>
-                </div>
-                <div class="ad-notif-time">14m ago</div>
-              </div>
-              <div class="ad-notif-item unread">
-                <div class="ad-notif-icon" style="background:var(--ad-danger-bg);color:var(--ad-danger);"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg></div>
-                <div class="ad-notif-body">
-                  <strong>Security Alert: Failed Login Attempts</strong>
-                  <p>3 consecutive failed login attempts detected from IP 197.243.xx.xx. Account not locked.</p>
-                </div>
-                <div class="ad-notif-time">31m ago</div>
-              </div>
-              <div class="ad-notif-item unread">
-                <div class="ad-notif-icon" style="background:var(--ad-success-bg);color:var(--ad-success);"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
-                <div class="ad-notif-body">
-                  <strong>Database Backup Completed</strong>
-                  <p>Automated daily backup ran successfully. Size: 2.3 GB. Storage: 32% free.</p>
-                </div>
-                <div class="ad-notif-time">3h ago</div>
-              </div>
-              <div class="ad-notif-item unread">
-                <div class="ad-notif-icon" style="background:var(--ad-purple-bg);color:var(--ad-purple);"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg></div>
-                <div class="ad-notif-body">
-                  <strong>Featured Listing Request</strong>
-                  <p>Provider David Kamanzi requested featured placement for listing "3BR House in Kicukiro". Needs review.</p>
-                </div>
-                <div class="ad-notif-time">5h ago</div>
-              </div>
-              <div class="ad-notif-item">
-                <div class="ad-notif-icon" style="background:var(--ad-info-bg);color:var(--ad-info);"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"></path><path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"></path></svg></div>
-                <div class="ad-notif-body">
-                  <strong>Weekly Performance Report Ready</strong>
-                  <p>Platform performance summary for the week ending June 7, 2026 is now available.</p>
-                </div>
-                <div class="ad-notif-time">Yesterday</div>
-              </div>
+              <?php else: ?>
+                <?php foreach ($data['notifications'] as $notif): ?>
+                  <div class="ad-notif-item <?= $notif['is_read'] ? '' : 'unread' ?>">
+                    <div class="ad-notif-icon" style="background:var(--ad-info-bg);color:var(--ad-info);">
+                      <svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <?php if (strpos($notif['message'], 'SECURITY ALERT') !== false): ?>
+                          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        <?php else: ?>
+                          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="17" y1="11" x2="23" y2="11"></line>
+                        <?php endif; ?>
+                      </svg>
+                    </div>
+                    <div class="ad-notif-body">
+                      <?php if (strpos($notif['message'], 'SECURITY ALERT') !== false): ?>
+                        <strong style="color:var(--ad-danger);">Security Alert</strong>
+                      <?php else: ?>
+                        <strong>System Notification</strong>
+                      <?php endif; ?>
+                      <p><?= e($notif['message']) ?></p>
+                    </div>
+                    <div class="ad-notif-time"><?= date('M j, g:i a', strtotime($notif['created_at'])) ?></div>
+                  </div>
+                <?php endforeach; ?>
+              <?php endif; ?>
             </div>
           </div>
         </div>

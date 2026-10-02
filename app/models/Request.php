@@ -2,7 +2,7 @@
 
 class RequestModel {
     public static function create($pdo, $data) {
-        $stmt = $pdo->prepare('INSERT INTO requests (name, phone, whatsapp, province, district, sector, budget, description, type, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, "new")');
+        $stmt = $pdo->prepare('INSERT INTO requests (name, phone, whatsapp, province, district, sector, cell, budget, description, type, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, "new")');
         $ok = $stmt->execute([
             $data['name'],
             $data['phone'],
@@ -10,6 +10,7 @@ class RequestModel {
             $data['province'],
             $data['district'],
             $data['sector'],
+            $data['cell'] ?? '',
             $data['budget'],
             $data['description'],
             $data['type'],

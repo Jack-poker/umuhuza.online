@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="public/assets/css/onboarding-premium.css?v=<?= filemtime(__DIR__ . '/../../public/assets/css/onboarding-premium.css') ?>" />
   <link rel="stylesheet" href="public/assets/css/wizard-ui.css?v=<?= filemtime(__DIR__ . '/../../public/assets/css/wizard-ui.css') ?>" />
   <link rel="stylesheet" href="public/assets/css/marketplace-ui.css?v=<?= filemtime(__DIR__ . '/../../public/assets/css/marketplace-ui.css') ?>" />
+  <link rel="manifest" href="/public/manifest.json" />
 </head>
 <body class="marketplace-body">
 <header class="marketplace-header fixed-top shadow-sm">

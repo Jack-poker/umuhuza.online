@@ -115,6 +115,21 @@ class AuthController {
                 header('Location: ?route=login');
                 exit;
             }
+            
+            // Get client IP
+            $ip = $_SERVER['HTTP_CLIENT_IP'] ?? $_SERVER['HTTP_X_FORWARDED_FOR'] ?? $_SERVER['REMOTE_ADDR'] ?? '0.0.0.0';
+            
+            // Check if IP is permanently locked in database
+            $stmt = $pdo->prepare("SELECT failed_count, locked_until FROM login_attempts WHERE ip_address = ?");
+            $stmt->execute([$ip]);
+            $attemptRecord = $stmt->fetch();
+            
+            if ($attemptRecord && $attemptRecord['locked_until'] && strtotime($attemptRecord['locked_until']) > time()) {
+                flash('error', 'Your IP address has been blocked due to multiple failed login attempts. Try again tomorrow.');
+                header('Location: ?route=login');
+                exit;
+            }
+
             // Verify CSRF token
             if (!verifyCsrfToken($_POST['csrf_token'] ?? '')) {
                 flash('error', 'Security token invalid. Please try again.');
@@ -131,7 +146,11 @@ class AuthController {
             if (!$user) {
                 $user = User::findByUsername($pdo, $identifier);
             }
+            
             if ($user && verifyPassword($password, $user['password_hash'])) {
+                // Login successful -> clear failed attempts
+                $pdo->prepare("DELETE FROM login_attempts WHERE ip_address = ?")->execute([$ip]);
+                
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['role'] = $user['role'];
                 flash('success', 'Welcome back.');
@@ -142,6 +161,23 @@ class AuthController {
                 }
                 exit;
             }
+            
+            // Login failed -> increment tracking
+            if ($attemptRecord) {
+                $failedCount = $attemptRecord['failed_count'] + 1;
+                if ($failedCount >= 5) {
+                    // Lock out for 24 hours
+                    $pdo->prepare("UPDATE login_attempts SET failed_count = ?, locked_until = DATE_ADD(NOW(), INTERVAL 24 HOUR) WHERE ip_address = ?")->execute([$failedCount, $ip]);
+                    // Notify Admin (User ID 1)
+                    require_once __DIR__ . '/../models/Notification.php';
+                    NotificationModel::create($pdo, 1, "SECURITY ALERT: IP address {$ip} has been blocked for 24 hours due to 5 consecutive failed login attempts.");
+                } else {
+                    $pdo->prepare("UPDATE login_attempts SET failed_count = ? WHERE ip_address = ?")->execute([$failedCount, $ip]);
+                }
+            } else {
+                $pdo->prepare("INSERT INTO login_attempts (ip_address, failed_count) VALUES (?, 1)")->execute([$ip]);
+            }
+
             flash('error', 'Invalid credentials.');
             header('Location: ?route=login');
             exit;

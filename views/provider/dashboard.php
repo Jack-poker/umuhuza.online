@@ -1,4 +1,7 @@
 <?php include __DIR__ . '/../layouts/header.php'; ?>
+<script>document.body.classList.add('admin-exec-page');</script>
+<link rel="stylesheet" href="public/assets/css/admin-dashboard.css?v=<?= urlencode(md5_file(__DIR__ . '/../../public/assets/css/admin-dashboard.css')) ?>" />
+
 <?php
 $unreadNotifs = array_filter($notifications ?? [], fn($n) => (int)$n['is_read'] === 0 && (int)$n['is_archived'] === 0);
 $readNotifs = array_filter($notifications ?? [], fn($n) => (int)$n['is_read'] === 1 && (int)$n['is_archived'] === 0);
@@ -11,1011 +14,706 @@ $quotaPercent = $userPlanLimit > 0 ? min(100, (int)round(($userListingsCount / $
 $activePlanId = (int)($plan['id'] ?? 1);
 ?>
 
-<!-- Mobile Backdrop Overlay -->
-<div class="provider-mobile-overlay" id="providerMobileOverlay" onclick="closeMobileDrawer()"></div>
-
-<section class="dashboard-shell container py-4">
-  <div class="row g-4 align-items-start">
-    <!-- Sidebar Navigation -->
-    <aside class="col-lg-3">
-      <div class="dashboard-sidebar panel p-4">
-        <div class="d-flex align-items-center gap-3 mb-4 provider-card-inline">
-          <?php if (!empty($user['profile_image'])): ?>
-            <img src="<?= e($user['profile_image']) ?>" alt="Profile photo" />
-          <?php else: ?>
-            <div class="provider-avatar-lg"><?= strtoupper(substr(($user['full_name'] ?? 'PR'), 0, 2)) ?></div>
-          <?php endif; ?>
-          <div>
-            <p class="small text-muted-custom mb-1" data-i18n="welcome_back">Welcome back</p>
-            <h4 class="fw-bold mb-0" style="font-size:1.05rem;"><?= e($user['full_name'] ?? 'Provider') ?></h4>
-            <span class="badge badge-premium mt-1"><?= e($plan['name'] ?? 'Free') ?> plan</span>
-          </div>
-        </div>
-
-        <nav class="nav flex-column gap-2 provider-nav-menu">
-          <a class="dash-nav-link active" href="#overview" data-provider-tab="overview">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
-            <span>Overview</span>
-          </a>
-          <a class="dash-nav-link" href="#analytics" data-provider-tab="analytics">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-            <span>Monthly Analytics</span>
-          </a>
-          <a class="dash-nav-link" href="#create-listing" data-provider-tab="create-listing">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
-            <span>Post Listing</span>
-          </a>
-          <a class="dash-nav-link" href="#matched-requests" data-provider-tab="matched-requests">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
-            <span>Matched Leads</span>
-            <?php if ($userMatchedCount > 0): ?>
-              <span class="badge bg-warning text-dark ms-auto"><?= $userMatchedCount ?></span>
-            <?php endif; ?>
-          </a>
-          <a class="dash-nav-link" href="#payments" data-provider-tab="payments">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-            <span>Plans & Upgrades</span>
-          </a>
-          <a class="dash-nav-link" href="#notifications-center" data-provider-tab="notifications-center">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-            <span>Notifications</span>
-            <?php if (count($unreadNotifs) > 0): ?>
-              <span class="badge bg-danger ms-auto"><?= count($unreadNotifs) ?></span>
-            <?php endif; ?>
-          </a>
-          <a class="dash-nav-link" href="#recent-listings" data-provider-tab="recent-listings">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
-            <span>My Listings</span>
-          </a>
-          <a class="dash-nav-link" href="#profile-settings" data-provider-tab="profile-settings">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-            <span>Profile Settings</span>
-          </a>
-          <a class="dash-nav-link text-muted" href="?route=listings">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
-            <span>Marketplace</span>
-          </a>
-          <a class="dash-nav-link text-danger mt-2 border-top pt-2" href="?route=logout">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-            <span class="fw-bold">Logout / Sign Out</span>
-          </a>
-        </nav>
-
-        <div class="mt-4 p-3 rounded-4 bg-soft border border-warning-subtle">
-          <div class="small text-muted-custom">Pro Tip</div>
-          <div class="fw-semibold small mt-1">Upgrade to Premium or Super plan to get priority lead matching & top ranking.</div>
-        </div>
+<!-- ===== TOP NAVIGATION ===================================== -->
+<header class="ad-topnav" role="banner">
+  <div class="ad-topnav-left">
+    <div class="ad-brand">
+      <div class="ad-brand-icon">P</div>
+      <div class="ad-brand-text">
+        <strong>UMUHUZA.ONLINE</strong>
+        <span>Provider Hub</span>
       </div>
-    </aside>
-
-    <!-- Main Workspace Content -->
-    <main class="col-lg-9">
-      <!-- Mobile Horizontal Scrollable Tab Bar (Visible on mobile < 992px) -->
-      <div class="d-lg-none mb-3 overflow-auto">
-        <div class="d-flex gap-2 pb-2 provider-nav-menu" style="white-space: nowrap;">
-          <a class="dash-nav-link active px-3 py-2 small rounded-pill bg-white border" href="#overview" data-provider-tab="overview">
-            <span>Overview</span>
-          </a>
-          <a class="dash-nav-link px-3 py-2 small rounded-pill bg-white border" href="#analytics" data-provider-tab="analytics">
-            <span>Monthly Analytics</span>
-          </a>
-          <a class="dash-nav-link px-3 py-2 small rounded-pill bg-white border" href="#create-listing" data-provider-tab="create-listing">
-            <span>Post Listing</span>
-          </a>
-          <a class="dash-nav-link px-3 py-2 small rounded-pill bg-white border" href="#matched-requests" data-provider-tab="matched-requests">
-            <span>Matched Leads</span>
-            <?php if ($userMatchedCount > 0): ?>
-              <span class="badge bg-warning text-dark ms-1"><?= $userMatchedCount ?></span>
-            <?php endif; ?>
-          </a>
-          <a class="dash-nav-link px-3 py-2 small rounded-pill bg-white border" href="#payments" data-provider-tab="payments">
-            <span>Plans & Upgrades</span>
-          </a>
-          <a class="dash-nav-link px-3 py-2 small rounded-pill bg-white border" href="#notifications-center" data-provider-tab="notifications-center">
-            <span>Notifications</span>
-            <?php if (count($unreadNotifs) > 0): ?>
-              <span class="badge bg-danger ms-1"><?= count($unreadNotifs) ?></span>
-            <?php endif; ?>
-          </a>
-          <a class="dash-nav-link px-3 py-2 small rounded-pill bg-white border" href="#recent-listings" data-provider-tab="recent-listings">
-            <span>My Listings</span>
-          </a>
-          <a class="dash-nav-link px-3 py-2 small rounded-pill bg-white border" href="#profile-settings" data-provider-tab="profile-settings">
-            <span>Profile Settings</span>
-          </a>
-        </div>
-      </div>
-
-      <div class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-end gap-3 mb-4">
-        <div>
-          <div class="d-flex align-items-center gap-2 mb-1">
-            <button type="button" class="btn btn-sm btn-outline-primary d-lg-none" onclick="openMobileDrawer()" aria-label="Toggle sidebar navigation">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-              <span>Menu</span>
-            </button>
-            <p class="eyebrow mb-0" data-i18n="provider_workspace">Provider workspace</p>
-          </div>
-          <h2 class="section-title mb-1" data-i18n="dashboard_title">Your marketplace dashboard</h2>
-          <p class="text-muted-custom mb-0" data-i18n="dashboard_sub">Track your plan, publish fresh listings, and respond to new leads faster.</p>
-        </div>
-        <a class="btn btn-primary" href="?route=listings" data-i18n="view_marketplace">View marketplace</a>
-      </div>
-
-      <!-- TAB 1: OVERVIEW -->
-      <div id="tab-overview" class="provider-tab-panel active">
-        <!-- Quick Stats Grid -->
-        <div class="row g-4 mb-4">
-          <article class="col-md-6 col-xl-3 stat-card p-4">
-            <div class="text-muted-custom small">Current plan</div>
-            <div class="number text-orange"><?= e(strtoupper($plan['name'] ?? 'FREE')) ?></div>
-            <div class="text-muted-custom small"><?= e($plan['listing_limit'] ?? 5) ?> listings allowed</div>
-          </article>
-          <article class="col-md-6 col-xl-3 stat-card p-4">
-            <div class="text-muted-custom small">Remaining quota</div>
-            <div class="number text-success"><?= (int)($remainingQuota ?? 0) ?></div>
-            <div class="text-muted-custom small">Listings left this cycle</div>
-          </article>
-          <article class="col-md-6 col-xl-3 stat-card p-4">
-            <div class="text-muted-custom small">Total listings</div>
-            <div class="number text-primary"><?= $userListingsCount ?></div>
-            <div class="text-muted-custom small">Approved + pending</div>
-          </article>
-          <article class="col-md-6 col-xl-3 stat-card p-4">
-            <div class="text-muted-custom small">Matched requests</div>
-            <div class="number text-warning"><?= $userMatchedCount ?></div>
-            <div class="text-muted-custom small">Inquiries in your area</div>
-          </article>
-        </div>
-
-        <!-- Alerts strip -->
-        <?php if (count($unreadNotifs) > 0): ?>
-          <div class="alert alert-primary d-flex align-items-center justify-content-between p-3 rounded-4 border-primary mb-4" style="background:rgba(13,110,253,.08);">
-            <div class="d-flex align-items-center gap-2">
-              <span style="font-size:1.3rem;">🔔</span>
-              <div>
-                <strong>You have <?= count($unreadNotifs) ?> unread notification<?= count($unreadNotifs) > 1 ? 's' : '' ?></strong>
-                <p class="small mb-0 text-muted-custom">Client requests are waiting for your response.</p>
-              </div>
-            </div>
-            <button class="btn btn-primary btn-sm fw-semibold" onclick="switchToTab('notifications-center')">View Notifications</button>
-          </div>
-        <?php endif; ?>
-
-        <!-- Quick actions -->
-        <div class="panel p-4 mb-4 bg-white rounded-4 border">
-          <h5 class="fw-bold mb-2">Quick Actions</h5>
-          <p class="text-muted-custom small mb-3">Use the sidebar to navigate between sections, or use these shortcuts.</p>
-          <div class="d-flex flex-wrap gap-2">
-            <button class="btn btn-primary btn-sm" onclick="switchToTab('create-listing')">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              Post New Listing
-            </button>
-            <button class="btn btn-outline-warning btn-sm" onclick="switchToTab('matched-requests')">
-              View Matched Leads
-              <?php if ($userMatchedCount > 0): ?>
-                <span class="badge bg-warning text-dark ms-1"><?= $userMatchedCount ?></span>
-              <?php endif; ?>
-            </button>
-            <button class="btn btn-outline-primary btn-sm" onclick="switchToTab('payments')">Upgrade Subscription</button>
-            <button class="btn btn-outline-secondary btn-sm" onclick="switchToTab('analytics')">View Statistics</button>
-          </div>
-        </div>
-
-        <!-- Recent incoming leads preview on Overview -->
-        <?php if (!empty($matchedRequests)): ?>
-          <div class="panel p-4 bg-white rounded-4 border mb-4">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-              <div>
-                <h5 class="fw-bold mb-1">Latest Incoming Leads</h5>
-                <p class="text-muted-custom small mb-0">Most recent client requests matched to your location & service.</p>
-              </div>
-              <button class="btn btn-outline-primary btn-sm" onclick="switchToTab('matched-requests')">View All <?= $userMatchedCount ?></button>
-            </div>
-            <div class="d-flex flex-column gap-3">
-              <?php foreach (array_slice($matchedRequests, 0, 3) as $req):
-                $waPhone = preg_replace('/[^0-9]/', '', $req['whatsapp'] ?? $req['phone'] ?? '');
-                $waMsg = rawurlencode("Hello " . ($req['name'] ?? 'Client') . ", I saw your request on UMUHUZA.ONLINE: " . ($req['description'] ?? ''));
-                $matchLevel = (int)($req['match_level'] ?? 4);
-                $matchLabel = $matchLevel === 0 ? 'Cell Match 📍' : ($matchLevel === 1 ? 'Sector Match 📍' : ($matchLevel === 2 ? 'District Match' : 'Province Match'));
-                $matchColor = $matchLevel <= 1 ? 'success' : ($matchLevel === 2 ? 'primary' : 'secondary');
-              ?>
-                <div class="p-3 rounded-3 border bg-light d-flex flex-wrap align-items-start justify-content-between gap-2">
-                  <div class="flex-fill">
-                    <div class="d-flex align-items-center gap-2 mb-1">
-                      <span class="badge bg-<?= $matchColor ?>"><?= $matchLabel ?></span>
-                      <span class="badge bg-primary-subtle text-primary"><?= e(strtoupper($req['type'] ?? 'SERVICE')) ?></span>
-                      <strong class="text-dark"><?= e($req['name']) ?></strong>
-                    </div>
-                    <p class="text-muted-custom small mb-1">
-                      📍 <?= e($req['province']) ?> / <?= e($req['district']) ?><?= !empty($req['sector']) ? ' / ' . e($req['sector']) : '' ?>
-                      <?php if (!empty($req['budget'])): ?>
-                        &nbsp;· <span class="text-success fw-semibold"><?= number_format((float)$req['budget']) ?> RWF</span>
-                      <?php endif; ?>
-                    </p>
-                    <p class="small text-dark mb-0" style="max-width:480px;"><?= e(mb_substr($req['description'], 0, 100)) . (mb_strlen($req['description']) > 100 ? '...' : '') ?></p>
-                  </div>
-                  <div class="d-flex gap-2 flex-shrink-0">
-                    <a href="tel:<?= e($req['phone']) ?>" class="btn btn-sm btn-primary">Call</a>
-                    <?php if (!empty($waPhone)): ?>
-                      <a href="https://wa.me/<?= $waPhone ?>?text=<?= $waMsg ?>" class="btn btn-sm btn-success" target="_blank">WhatsApp</a>
-                    <?php endif; ?>
-                  </div>
-                </div>
-              <?php endforeach; ?>
-            </div>
-          </div>
-        <?php endif; ?>
-      </div>
-
-      <!-- TAB 2: MONTHLY ANALYTICS & STATISTICS -->
-      <div id="tab-analytics" class="provider-tab-panel">
-        <article class="panel p-4 mb-4">
-          <div class="d-flex align-items-center justify-content-between mb-3">
-            <div>
-              <h5 class="fw-bold mb-1">Monthly Performance & Statistics</h5>
-              <p class="text-muted-custom small mb-0">Overview of your activity and lead performance for the current month.</p>
-            </div>
-            <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill"><?= date('F Y') ?></span>
-          </div>
-
-          <div class="row g-3 mb-4">
-            <div class="col-md-4">
-              <div class="p-3 rounded-4 bg-light border">
-                <div class="small text-muted-custom">Monthly Listings Posted</div>
-                <div class="h4 fw-bold text-dark my-1"><?= $userListingsCount ?></div>
-                <div class="small text-success">Active on marketplace</div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="p-3 rounded-4 bg-light border">
-                <div class="small text-muted-custom">Monthly Client Matches</div>
-                <div class="h4 fw-bold text-primary my-1"><?= $userMatchedCount ?></div>
-                <div class="small text-primary">Leads in your service zone</div>
-              </div>
-            </div>
-            <div class="col-md-4">
-              <div class="p-3 rounded-4 bg-light border">
-                <div class="small text-muted-custom">Account Health & Status</div>
-                <div class="h4 fw-bold text-success my-1">100% Active</div>
-                <div class="small text-muted-custom">Verified provider profile</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="p-3 rounded-4 bg-light border">
-            <div class="d-flex justify-content-between align-items-center mb-2">
-              <span class="fw-semibold small">Listing Quota Usage</span>
-              <span class="small fw-bold text-primary"><?= $userListingsCount ?> / <?= $userPlanLimit ?> (<?= $quotaPercent ?>%)</span>
-            </div>
-            <div class="progress" style="height: 10px; border-radius: 999px;">
-              <div class="progress-bar bg-primary" role="progressbar" style="width: <?= $quotaPercent ?>%; border-radius: 999px;" aria-valuenow="<?= $quotaPercent ?>" aria-valuemin="0" aria-valuemax="100"></div>
-            </div>
-          </div>
-        </article>
-      </div>
-
-      <!-- TAB 3: CREATE LISTING -->
-      <div id="tab-create-listing" class="provider-tab-panel">
-        <article id="create-listing" class="panel p-4 mb-4">
-          <h5 class="fw-bold mb-3">Create a new listing</h5>
-          <p class="text-muted-custom small mb-3">Add a property or service and make it visible to buyers right away.</p>
-          <form class="row g-3" method="POST" action="?route=create-listing" enctype="multipart/form-data">
-            <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
-            <div class="col-12">
-              <label class="form-label small text-muted-custom">Listing title</label>
-              <input class="form-control" name="title" placeholder="Enter a clear listing title" required />
-            </div>
-            <div class="col-md-6">
-              <label class="form-label small text-muted-custom">Price</label>
-              <input class="form-control" name="price" placeholder="Amount in RWF" required />
-            </div>
-            <div class="col-md-6">
-              <label class="form-label small text-muted-custom">Province</label>
-              <input class="form-control" name="province" placeholder="Kigali" />
-            </div>
-            <div class="col-md-6">
-              <label class="form-label small text-muted-custom">District</label>
-              <input class="form-control" name="district" placeholder="Gasabo" />
-            </div>
-            <div class="col-md-6">
-              <label class="form-label small text-muted-custom">Sector</label>
-              <input class="form-control" name="sector" placeholder="Kacyiru" />
-            </div>
-            <div class="col-12">
-              <label class="form-label small text-muted-custom">Description</label>
-              <textarea class="form-control" name="description" rows="3" placeholder="Describe what buyers or clients will get"></textarea>
-            </div>
-            <div class="col-12">
-              <label class="form-label small text-muted-custom">Listing photos (1 to 5 photos)</label>
-              <input class="form-control" type="file" name="images[]" multiple accept="image/jpeg,image/png,image/webp,image/gif" data-max-files="5" data-min-files="1" data-max-bytes="5242880" data-min-bytes="5120" />
-              <small class="text-muted d-block mt-1" style="font-size:0.8rem;">Supported: JPG, PNG, WEBP, GIF. Photos per post: 1 to 5. Size: 5 KB – 5 MB per photo (auto-compressed for fast loading).</small>
-            </div>
-            <div class="col-12">
-              <button class="btn btn-primary" type="submit">Publish listing</button>
-            </div>
-          </form>
-        </article>
-      </div>
-
-      <!-- TAB 4: PLANS & UPGRADES (WITH PLAN SHOWCASE CARDS) -->
-      <div id="tab-payments" class="provider-tab-panel">
-        <!-- PLAN SHOWCASE SLIDER CARDS -->
-        <article class="panel p-4 mb-4">
-          <h5 class="fw-bold mb-1">Subscription Plans & Marketplace Visibility</h5>
-          <p class="text-muted-custom small mb-4">Compare available tiers and choose the right plan for your business growth.</p>
-          
-          <div class="row g-3 mb-4">
-            <!-- Free Plan -->
-            <div class="col-md-4">
-              <div class="card h-100 p-3 rounded-4 border <?= $activePlanId === 1 ? 'border-primary shadow-sm bg-primary-subtle bg-opacity-10' : 'bg-light' ?>">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span class="fw-bold text-dark">Free Plan</span>
-                  <?php if ($activePlanId === 1): ?>
-                    <span class="badge bg-primary text-white">Active Plan</span>
-                  <?php endif; ?>
-                </div>
-                <div class="h4 fw-bold text-dark mb-3">0 <small class="fs-6 text-muted">RWF / mo</small></div>
-                <ul class="list-unstyled small text-muted-custom mb-3 gap-2 d-flex flex-column">
-                  <li>✔ <strong>5 Listings</strong> quota</li>
-                  <li>✔ Standard search ranking</li>
-                  <li>✔ Basic customer lead access</li>
-                  <li>✔ Community profile badge</li>
-                </ul>
-              </div>
-            </div>
-
-            <!-- Premium Plan -->
-            <div class="col-md-4">
-              <div class="card h-100 p-3 rounded-4 border <?= $activePlanId === 2 ? 'border-warning shadow bg-warning-subtle bg-opacity-10' : 'border-warning-subtle bg-white' ?>">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span class="fw-bold text-warning-emphasis">Premium Plan</span>
-                  <?php if ($activePlanId === 2): ?>
-                    <span class="badge bg-warning text-dark">Active Plan</span>
-                  <?php else: ?>
-                    <span class="badge bg-warning-subtle text-warning">Popular</span>
-                  <?php endif; ?>
-                </div>
-                <div class="h4 fw-bold text-dark mb-3">3,000 <small class="fs-6 text-muted">RWF / mo</small></div>
-                <ul class="list-unstyled small text-muted-custom mb-3 gap-2 d-flex flex-column">
-                  <li>✔ <strong>20 Listings</strong> quota</li>
-                  <li>✔ <strong>2x Priority</strong> search placement</li>
-                  <li>✔ Unlimited matched client leads</li>
-                  <li>✔ Direct WhatsApp contact button</li>
-                  <li>✔ Verified Provider Badge</li>
-                </ul>
-              </div>
-            </div>
-
-            <!-- Super Plan -->
-            <div class="col-md-4">
-              <div class="card h-100 p-3 rounded-4 border <?= $activePlanId === 3 ? 'border-success shadow bg-success-subtle bg-opacity-10' : 'border-success-subtle bg-white' ?>">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                  <span class="fw-bold text-success">Super Plan</span>
-                  <?php if ($activePlanId === 3): ?>
-                    <span class="badge bg-success text-white">Active Plan</span>
-                  <?php else: ?>
-                    <span class="badge bg-success-subtle text-success">Maximum Growth</span>
-                  <?php endif; ?>
-                </div>
-                <div class="h4 fw-bold text-dark mb-3">5,000 <small class="fs-6 text-muted">RWF / mo</small></div>
-                <ul class="list-unstyled small text-muted-custom mb-3 gap-2 d-flex flex-column">
-                  <li>✔ <strong>Unlimited</strong> listings quota</li>
-                  <li>✔ <strong>Top #1 Featured</strong> marketplace ranking</li>
-                  <li>✔ Instant priority lead notification</li>
-                  <li>✔ Gold Verified Agent Badge</li>
-                  <li>✔ VIP Admin Support</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        </article>
-
-        <!-- PAYMENT FORM -->
-        <article id="payments" class="panel p-4 mb-4">
-          <h5 class="fw-bold mb-3">Upgrade plan & payments</h5>
-          <p class="text-muted-custom small mb-3">Choose a plan, pay manually, and get your listing boosted after admin approval.</p>
-          <form class="row g-3" method="POST" action="?route=upgrade-plan">
-            <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
-            <div class="col-12">
-              <label class="form-label small text-muted-custom">Plan</label>
-              <select class="form-select" name="plan_id">
-                <option value="1" <?= $activePlanId === 1 ? 'selected' : '' ?>>Free Plan (5 listings)</option>
-                <option value="2" <?= $activePlanId === 2 ? 'selected' : '' ?>>Premium Plan - 3,000 RWF (20 listings)</option>
-                <option value="3" <?= $activePlanId === 3 ? 'selected' : '' ?>>Super Plan - 5,000 RWF (Unlimited listings)</option>
-              </select>
-            </div>
-            <div class="col-12">
-              <label class="form-label small text-muted-custom">Transaction / reference ID</label>
-              <input class="form-control" name="transaction_id" placeholder="Reference from your payment slip" />
-            </div>
-            <div class="col-12">
-              <label class="form-label small text-muted-custom">Sender name</label>
-              <input class="form-control" name="sender_name" placeholder="Name shown on the payment" />
-            </div>
-            <div class="col-12">
-              <label class="form-label small text-muted-custom">Sender phone</label>
-              <input class="form-control" name="sender_phone" placeholder="Phone used for payment" />
-            </div>
-            <div class="col-12">
-              <label class="form-label small text-muted-custom">Amount</label>
-              <input class="form-control" name="amount" placeholder="Amount sent in RWF" />
-            </div>
-            <div class="col-12">
-              <button class="btn btn-primary w-100" type="submit">Submit payment for verification</button>
-            </div>
-          </form>
-          <div class="alert alert-warning mt-3 mb-0">Admin approval is required for payments and plan upgrades.</div>
-        </article>
-      </div>
-
-      <!-- TAB 5: MATCHED LEADS -->
-      <div id="tab-matched-requests" class="provider-tab-panel">
-        <article id="matched-requests" class="panel p-4 mb-4">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <div>
-              <h5 class="fw-bold mb-1">Matched Client Leads & Inquiries</h5>
-              <p class="text-muted-custom small mb-0">Direct requests from clients in your district/sector looking for your expertise.</p>
-            </div>
-            <span class="badge bg-primary-subtle text-primary px-3 py-2 rounded-pill fw-semibold"><?= count($matchedRequests) ?> Active Leads</span>
-          </div>
-
-          <?php if (($blockedLeadsCount ?? 0) > 0): ?>
-            <div class="alert alert-warning d-flex align-items-center justify-content-between p-3 rounded-4 border-warning bg-warning-subtle mb-3">
-              <div>
-                <strong>⚠️ Delivery Limit Reached</strong>
-                <p class="small mb-0 text-muted-custom">You have <?= (int)$blockedLeadsCount ?> blocked leads. Upgrade plan to receive unlimited leads.</p>
-              </div>
-              <button onclick="switchToTab('payments')" class="btn btn-warning btn-sm">Upgrade Plan</button>
-            </div>
-          <?php endif; ?>
-
-          <?php if (!empty($matchedRequests)): ?>
-            <div class="d-flex flex-column gap-3">
-              <?php foreach ($matchedRequests as $req): 
-                $matchLevelText = 'Province Match';
-                $matchBadgeBg = 'bg-secondary';
-                if ((int)($req['match_level'] ?? 4) === 0) {
-                  $matchLevelText = 'Exact Cell Match 📍';
-                  $matchBadgeBg = 'bg-success';
-                } elseif ((int)($req['match_level'] ?? 4) === 1) {
-                  $matchLevelText = 'Sector Match 📍';
-                  $matchBadgeBg = 'bg-primary';
-                } elseif ((int)($req['match_level'] ?? 4) === 2) {
-                  $matchLevelText = 'District Match 📍';
-                  $matchBadgeBg = 'bg-info text-dark';
-                }
-                
-                $waPhone = preg_replace('/[^0-9]/', '', $req['whatsapp'] ?? $req['phone'] ?? '');
-                $waMessage = rawurlencode("Hello " . ($req['name'] ?? 'Client') . ", I saw your request on UMUHUZA.ONLINE: " . ($req['description'] ?? ''));
-              ?>
-                <div class="p-4 rounded-4 bg-white border card-hover shadow-sm">
-                  <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-2">
-                    <div>
-                      <span class="badge bg-primary-subtle text-primary fw-semibold me-2"><?= e(strtoupper($req['type'] ?? 'SERVICE REQUEST')) ?></span>
-                      <span class="badge <?= $matchBadgeBg ?> me-2"><?= $matchLevelText ?></span>
-                      <h4 class="fw-bold text-dark d-inline-block mb-0" style="font-size: 1.1rem;"><?= e($req['name']) ?></h4>
-                    </div>
-                    <small class="text-muted-custom"><?= e($req['created_at']) ?></small>
-                  </div>
-
-                  <div class="p-3 bg-light rounded-3 border my-3">
-                    <div class="row g-2 small">
-                      <div class="col-md-6">
-                        <strong class="text-dark">📍 Location:</strong> 
-                        <span class="text-muted-custom"><?= e($req['province']) ?> / <?= e($req['district']) ?> <?= !empty($req['sector']) ? ('/ ' . e($req['sector'])) : '' ?> <?= !empty($req['cell']) ? ('/ ' . e($req['cell'])) : '' ?></span>
-                      </div>
-                      <div class="col-md-6">
-                        <strong class="text-dark">💰 Budget:</strong> 
-                        <?php if (!empty($req['budget'])): ?>
-                          <span class="badge bg-success-subtle text-success fw-bold"><?= number_format((float)$req['budget']) ?> RWF</span>
-                        <?php else: ?>
-                          <span class="badge bg-secondary-subtle text-secondary">Negotiable</span>
-                        <?php endif; ?>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="mb-3">
-                    <strong class="small text-muted-custom d-block mb-1">CLIENT REQUIREMENT / NEED DETAILS:</strong>
-                    <p class="text-dark fs-6 mb-0 leading-relaxed" style="white-space: pre-line;"><?= e($req['description']) ?></p>
-                  </div>
-
-                  <div class="d-flex flex-wrap gap-2 pt-2 border-top">
-                    <a href="tel:<?= e($req['phone']) ?>" class="btn btn-primary px-3 btn-sm fw-semibold">
-                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.9.33 1.79.63 2.65a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.43-1.18a2 2 0 0 1 2.11-.45c.86.3 1.75.51 2.65.63A2 2 0 0 1 22 16.92z"/></svg>
-                      Call Client (<?= e($req['phone']) ?>)
-                    </a>
-                    <?php if (!empty($waPhone)): ?>
-                      <a href="https://wa.me/<?= $waPhone ?>?text=<?= $waMessage ?>" class="btn btn-success px-3 btn-sm fw-semibold" target="_blank">
-                        WhatsApp Client
-                      </a>
-                    <?php endif; ?>
-                  </div>
-                </div>
-              <?php endforeach; ?>
-            </div>
-          <?php else: ?>
-            <p class="text-muted-custom mb-0">No matching requests found yet. Requests from clients in your service areas will appear here automatically.</p>
-          <?php endif; ?>
-        </article>
-      </div>
-
-      <!-- TAB 6: NOTIFICATIONS CENTER -->
-      <div id="tab-notifications-center" class="provider-tab-panel">
-        <article id="notifications-center" class="panel p-4 mb-4">
-          <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5 class="fw-bold mb-0">Notification Center</h5>
-            <span class="badge bg-danger px-3 py-2 rounded-pill"><?= count($unreadNotifs) ?> Unread</span>
-          </div>
-          
-          <ul class="nav nav-tabs mb-3" id="notifTabs" role="tablist">
-            <li class="nav-item" role="presentation">
-              <button class="nav-link active fw-semibold" id="unread-tab" data-bs-toggle="tab" data-bs-target="#unread-pane" type="button" role="tab" aria-controls="unread-pane" aria-selected="true">
-                Unread <span class="badge bg-danger ms-1"><?= count($unreadNotifs) ?></span>
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link fw-semibold" id="read-tab" data-bs-toggle="tab" data-bs-target="#read-pane" type="button" role="tab" aria-controls="read-pane" aria-selected="false">
-                Read
-              </button>
-            </li>
-            <li class="nav-item" role="presentation">
-              <button class="nav-link fw-semibold" id="archived-tab" data-bs-toggle="tab" data-bs-target="#archived-pane" type="button" role="tab" aria-controls="archived-pane" aria-selected="false">
-                Archived
-              </button>
-            </li>
-          </ul>
-
-          <div class="tab-content" id="notifTabsContent">
-            <!-- Unread Pane -->
-            <div class="tab-pane fade show active" id="unread-pane" role="tabpanel" aria-labelledby="unread-tab" tabindex="0">
-              <?php if (!empty($unreadNotifs)): ?>
-                <div class="d-flex flex-column gap-3">
-                  <?php foreach ($unreadNotifs as $notif): 
-                    $hasClient = !empty($notif['client_phone']) || !empty($notif['client_name']);
-                    $waPhone = preg_replace('/[^0-9]/', '', $notif['client_whatsapp'] ?? $notif['client_phone'] ?? '');
-                    $waMsg = rawurlencode("Hello " . ($notif['client_name'] ?? 'Client') . ", I saw your request on UMUHUZA.ONLINE: " . ($notif['client_description'] ?? ''));
-                  ?>
-                    <div class="p-3 rounded-4 bg-white border card-hover border-start border-4 border-primary shadow-sm">
-                      <div class="d-flex justify-content-between align-items-start mb-2">
-                        <div>
-                          <?php if ($hasClient): ?>
-                            <span class="badge bg-primary-subtle text-primary fw-semibold me-2"><?= e(strtoupper($notif['client_type'] ?? 'CLIENT REQUEST')) ?></span>
-                            <strong class="text-dark fs-6"><?= e($notif['client_name'] ?? 'Client Request') ?></strong>
-                          <?php else: ?>
-                            <span class="badge bg-info-subtle text-info me-2">SYSTEM ALERT</span>
-                            <strong class="text-dark fs-6">System Notification</strong>
-                          <?php endif; ?>
-                        </div>
-                        <small class="text-muted-custom"><?= e($notif['created_at']) ?></small>
-                      </div>
-
-                      <p class="text-dark mb-2 small"><?= e($notif['message']) ?></p>
-
-                      <?php if ($hasClient): ?>
-                        <div class="p-3 bg-light rounded-3 border mb-3 small">
-                          <div class="row g-2">
-                            <div class="col-md-6">
-                              <strong class="text-dark">📍 Location:</strong> 
-                              <span class="text-muted-custom"><?= e($notif['client_province'] ?? 'Rwanda') ?> / <?= e($notif['client_district'] ?? '') ?> <?= !empty($notif['client_sector']) ? ('/ ' . e($notif['client_sector'])) : '' ?></span>
-                            </div>
-                            <div class="col-md-6">
-                              <strong class="text-dark">💰 Budget:</strong> 
-                              <?php if (!empty($notif['client_budget'])): ?>
-                                <span class="badge bg-success-subtle text-success"><?= number_format((float)$notif['client_budget']) ?> RWF</span>
-                              <?php else: ?>
-                                <span class="badge bg-secondary-subtle text-secondary">Negotiable</span>
-                              <?php endif; ?>
-                            </div>
-                            <?php if (!empty($notif['client_description'])): ?>
-                              <div class="col-12 mt-2">
-                                <strong class="text-dark d-block">Full Description:</strong>
-                                <span class="text-dark"><?= e($notif['client_description']) ?></span>
-                              </div>
-                            <?php endif; ?>
-                          </div>
-                        </div>
-                        <div class="d-flex flex-wrap gap-2">
-                          <?php if (!empty($notif['client_phone'])): ?>
-                            <a href="tel:<?= e($notif['client_phone']) ?>" class="btn btn-sm btn-primary fw-semibold">
-                              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.9.33 1.79.63 2.65a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.43-1.18a2 2 0 0 1 2.11-.45c.86.3 1.75.51 2.65.63A2 2 0 0 1 22 16.92z"/></svg> Call Client
-                            </a>
-                          <?php endif; ?>
-                          <?php if (!empty($waPhone)): ?>
-                            <a href="https://wa.me/<?= $waPhone ?>?text=<?= $waMsg ?>" class="btn btn-sm btn-success fw-semibold" target="_blank">WhatsApp Client</a>
-                          <?php endif; ?>
-                          <button onclick="markNotifRead(<?= (int)$notif['id'] ?>)" class="btn btn-sm btn-outline-primary ms-auto">Mark Read</button>
-                          <button onclick="archiveNotif(<?= (int)$notif['id'] ?>)" class="btn btn-sm btn-outline-secondary">Archive</button>
-                        </div>
-                      <?php else: ?>
-                        <div class="d-flex gap-2 justify-content-end border-top pt-2">
-                          <button onclick="markNotifRead(<?= (int)$notif['id'] ?>)" class="btn btn-sm btn-outline-primary">Mark Read</button>
-                          <button onclick="archiveNotif(<?= (int)$notif['id'] ?>)" class="btn btn-sm btn-outline-secondary">Archive</button>
-                        </div>
-                      <?php endif; ?>
-                    </div>
-                  <?php endforeach; ?>
-                </div>
-              <?php else: ?>
-                <p class="text-muted-custom py-2 mb-0">No unread notifications.</p>
-              <?php endif; ?>
-            </div>
-            
-            <!-- Read Pane -->
-            <div class="tab-pane fade" id="read-pane" role="tabpanel" aria-labelledby="read-tab" tabindex="0">
-              <?php if (!empty($readNotifs)): ?>
-                <div class="d-flex flex-column gap-3">
-                  <?php foreach ($readNotifs as $notif): 
-                    $hasClient = !empty($notif['client_phone']) || !empty($notif['client_name']);
-                    $waPhone = preg_replace('/[^0-9]/', '', $notif['client_whatsapp'] ?? $notif['client_phone'] ?? '');
-                    $waMsg = rawurlencode("Hello " . ($notif['client_name'] ?? 'Client') . ", I saw your request on UMUHUZA.ONLINE: " . ($notif['client_description'] ?? ''));
-                  ?>
-                    <div class="p-3 rounded-4 bg-light border">
-                      <div class="d-flex justify-content-between align-items-start mb-2">
-                        <div>
-                          <?php if ($hasClient): ?>
-                            <span class="badge bg-secondary me-2"><?= e(strtoupper($notif['client_type'] ?? 'CLIENT REQUEST')) ?></span>
-                            <strong class="text-dark"><?= e($notif['client_name'] ?? 'Client Request') ?></strong>
-                          <?php else: ?>
-                            <strong class="text-dark">System Notification</strong>
-                          <?php endif; ?>
-                        </div>
-                        <small class="text-muted-custom"><?= e($notif['created_at']) ?></small>
-                      </div>
-                      <p class="text-dark mb-2 small"><?= e($notif['message']) ?></p>
-                      <?php if ($hasClient): ?>
-                        <div class="d-flex flex-wrap gap-2 mt-2">
-                          <?php if (!empty($notif['client_phone'])): ?>
-                            <a href="tel:<?= e($notif['client_phone']) ?>" class="btn btn-sm btn-outline-primary">Call Client</a>
-                          <?php endif; ?>
-                          <?php if (!empty($waPhone)): ?>
-                            <a href="https://wa.me/<?= $waPhone ?>?text=<?= $waMsg ?>" class="btn btn-sm btn-outline-success" target="_blank">WhatsApp</a>
-                          <?php endif; ?>
-                          <button onclick="archiveNotif(<?= (int)$notif['id'] ?>)" class="btn btn-sm btn-outline-secondary ms-auto">Archive</button>
-                        </div>
-                      <?php else: ?>
-                        <div class="d-flex justify-content-end">
-                          <button onclick="archiveNotif(<?= (int)$notif['id'] ?>)" class="btn btn-sm btn-outline-secondary">Archive</button>
-                        </div>
-                      <?php endif; ?>
-                    </div>
-                  <?php endforeach; ?>
-                </div>
-              <?php else: ?>
-                <p class="text-muted-custom py-2 mb-0">No read notifications.</p>
-              <?php endif; ?>
-            </div>
-            
-            <!-- Archived Pane -->
-            <div class="tab-pane fade" id="archived-pane" role="tabpanel" aria-labelledby="archived-tab" tabindex="0">
-              <?php if (!empty($archivedNotifs)): ?>
-                <div class="d-flex flex-column gap-3">
-                  <?php foreach ($archivedNotifs as $notif): ?>
-                    <div class="p-3 rounded-4 bg-light border opacity-75">
-                      <div class="d-flex justify-content-between align-items-center mb-1">
-                        <strong class="text-muted small"><?= e($notif['message']) ?></strong>
-                        <small class="text-muted-custom"><?= e($notif['created_at']) ?></small>
-                      </div>
-                      <span class="badge bg-secondary text-secondary-custom">Archived</span>
-                    </div>
-                  <?php endforeach; ?>
-                </div>
-              <?php else: ?>
-                <p class="text-muted-custom py-2 mb-0">No archived notifications.</p>
-              <?php endif; ?>
-            </div>
-          </div>
-        </article>
-      </div>
-
-      <!-- TAB 7: MY LISTINGS -->
-      <div id="tab-recent-listings" class="provider-tab-panel">
-        <article id="recent-listings" class="panel p-4 mb-4">
-          <h5 class="fw-bold mb-3">My Recent Listings</h5>
-          <?php if (!empty($listings)): ?>
-            <div class="recent-listings-grid">
-              <?php foreach (($listings ?? []) as $item): ?>
-                <div class="recent-list-item d-flex justify-content-between align-items-center p-3 border rounded-3 mb-2 bg-light">
-                  <div>
-                    <h6 class="fw-semibold mb-1"><?= e($item['title'] ?? '') ?></h6>
-                    <p class="small text-muted-custom mb-0"><?= formatPrice($item['price'] ?? 0) ?> • <?= e($item['province'] ?? '') ?> / <?= e($item['district'] ?? '') ?></p>
-                  </div>
-                  <span class="badge <?= ($item['status'] ?? '') === 'approved' ? 'bg-success' : 'bg-warning text-dark' ?>">
-                    <?= ucfirst(e($item['status'] ?? 'pending')) ?>
-                  </span>
-                </div>
-              <?php endforeach; ?>
-            </div>
-          <?php else: ?>
-            <p class="text-muted-custom mb-0">You have no listings yet. Publish one to start getting matched with buyers.</p>
-          <?php endif; ?>
-        </article>
-      </div>
-
-      <!-- TAB 8: PROFILE SETTINGS -->
-      <div id="tab-profile-settings" class="provider-tab-panel">
-        <article id="profile-settings" class="panel p-4 mb-4">
-          <div class="d-flex align-items-center justify-content-between mb-4">
-            <div>
-              <h5 class="fw-bold mb-1">Account & Profile Settings</h5>
-              <p class="text-muted-custom small mb-0">Update your business details, call number, WhatsApp contact, and account preferences.</p>
-            </div>
-            <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill">Verified Account</span>
-          </div>
-
-          <form method="POST" action="?route=update-profile" enctype="multipart/form-data" class="row g-3">
-            <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
-
-            <div class="col-md-6">
-              <label class="form-label small fw-semibold text-dark">Full Name / Business Name</label>
-              <input type="text" class="form-control" name="full_name" value="<?= e($user['full_name'] ?? '') ?>" placeholder="Your name or company name" required />
-              <div class="form-text small text-muted">This name appears on your marketplace listings and provider profile.</div>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label small fw-semibold text-dark">Username</label>
-              <input type="text" class="form-control" name="username" value="<?= e($user['username'] ?? '') ?>" placeholder="username" required />
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label small fw-semibold text-dark">Phone Number (For Direct Calls)</label>
-              <div class="input-group">
-                <span class="input-group-text bg-light"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg></span>
-                <input type="tel" class="form-control" name="phone" value="<?= e($user['phone'] ?? '') ?>" placeholder="+250 788 XXX XXX" required />
-              </div>
-              <div class="form-text small text-muted">Used by buyers to call you directly.</div>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label small fw-semibold text-dark">WhatsApp Number (For Instant Messages)</label>
-              <div class="input-group">
-                <span class="input-group-text bg-success-subtle text-success"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span>
-                <input type="tel" class="form-control" name="whatsapp" value="<?= e($user['whatsapp'] ?? ($user['phone'] ?? '')) ?>" placeholder="+250 788 XXX XXX" />
-              </div>
-              <div class="form-text small text-muted">Powers the instant WhatsApp chat button on your listings.</div>
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label small fw-semibold text-dark">Email Address</label>
-              <input type="email" class="form-control" name="email" value="<?= e($user['email'] ?? '') ?>" placeholder="your.email@domain.com" required />
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label small fw-semibold text-dark">Account Type</label>
-              <select class="form-select" name="account_type">
-                <option value="agent" <?= ($user['account_type'] ?? 'agent') === 'agent' ? 'selected' : '' ?>>Real Estate Agent / Property Owner</option>
-                <option value="service" <?= ($user['account_type'] ?? '') === 'service' || ($user['account_type'] ?? '') === 'provider' ? 'selected' : '' ?>>Professional Service Provider</option>
-              </select>
-            </div>
-
-            <div class="col-md-4">
-              <label class="form-label small fw-semibold text-dark">Province</label>
-              <input type="text" class="form-control" name="province" value="<?= e($user['province'] ?? 'Kigali') ?>" placeholder="e.g. Kigali" />
-            </div>
-
-            <div class="col-md-4">
-              <label class="form-label small fw-semibold text-dark">District</label>
-              <input type="text" class="form-control" name="district" value="<?= e($user['district'] ?? 'Gasabo') ?>" placeholder="e.g. Gasabo" />
-            </div>
-
-            <div class="col-md-4">
-              <label class="form-label small fw-semibold text-dark">Sector</label>
-              <input type="text" class="form-control" name="sector" value="<?= e($user['sector'] ?? 'Kacyiru') ?>" placeholder="e.g. Kacyiru" />
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label small fw-semibold text-dark">Profile Photo (Optional Upload)</label>
-              <input type="file" class="form-control" name="profile_image" accept="image/*" />
-            </div>
-
-            <div class="col-md-6">
-              <label class="form-label small fw-semibold text-dark">New Password (Leave blank to keep current)</label>
-              <input type="password" class="form-control" name="new_password" placeholder="••••••••" minlength="6" />
-            </div>
-
-            <div class="col-12 mt-4 d-flex align-items-center gap-3">
-              <button type="submit" class="btn btn-primary px-4 py-2 rounded-3 fw-semibold">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="me-1"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-                Save Profile Changes
-              </button>
-            </div>
-          </form>
-
-          <div class="mt-4 p-3 rounded-4 bg-primary-subtle text-primary border border-primary-subtle d-flex align-items-center justify-content-between">
-            <div>
-              <strong>Current Subscription Tier: <?= e(strtoupper($plan['name'] ?? 'FREE')) ?></strong>
-              <div class="small mt-1">Listing quota: <?= $userListingsCount ?> of <?= $userPlanLimit ?> used</div>
-            </div>
-            <button onclick="switchToTab('payments')" class="btn btn-primary btn-sm">Manage Plan</button>
-          </div>
-        </article>
-      </div>
-    </main>
+    </div>
   </div>
-</section>
 
+  <div class="ad-topnav-center">
+    <div class="ad-search-wrap">
+      <svg class="ad-svg-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input type="text" placeholder="Search leads, listings, or payments..." aria-label="Search dashboard">
+    </div>
+  </div>
+
+  <div class="ad-topnav-right">
+    <button class="ad-topnav-icon-btn d-lg-none" id="adMenuToggle" aria-label="Toggle Menu">
+      <svg class="ad-svg-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
+    <a href="?route=home" class="ad-topnav-icon-btn" title="View Marketplace">
+      <svg class="ad-svg-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+    </a>
+    <div class="ad-topnav-icon-btn" data-ad-view="notifications">
+      <svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+      <?php if (count($unreadNotifs) > 0): ?>
+        <span class="ad-notif-badge"><?= count($unreadNotifs) ?></span>
+      <?php endif; ?>
+    </div>
+    <div class="ad-user-chip" data-ad-view="settings">
+      <div class="ad-user-avatar"><?= strtoupper(substr(($user['full_name'] ?? 'PR'), 0, 2)) ?></div>
+      <span class="d-none d-sm-inline"><?= e($user['full_name'] ?? 'Provider') ?></span>
+    </div>
+  </div>
+</header>
+
+<div class="ad-overlay" id="adOverlay"></div>
+
+<div class="ad-layout">
+  
+  <!-- ===== SIDEBAR ===================================== -->
+  <aside class="ad-sidebar" id="adSidebar">
+    <div class="ad-sidebar-header">
+      <div class="ad-sidebar-profile">
+        <div class="ad-profile-avatar"><?= strtoupper(substr(($user['full_name'] ?? 'PR'), 0, 2)) ?></div>
+        <div class="ad-profile-info">
+          <strong><?= e($user['full_name'] ?? 'Provider') ?></strong>
+          <small><?= e($user['username'] ?? '') ?></small>
+          <div class="ad-profile-badge"><svg style="font-size:0.5rem;" class="ad-svg-icon" viewBox="0 0 24 24" width="8" height="8" fill="currentColor"><circle cx="12" cy="12" r="10"></circle></svg> <?= e($plan['name'] ?? 'Free') ?> Plan</div>
+        </div>
+      </div>
+    </div>
+    
+    <nav class="ad-sidebar-nav">
+      <span class="ad-nav-section-label">Main Workspace</span>
+      
+      <!-- We use 'executive' so the admin JS defaults to this view on load -->
+      <a class="ad-nav-item active" data-ad-view="executive">
+        <svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg>
+        <span class="ad-nav-label">Overview</span>
+      </a>
+      
+      <a class="ad-nav-item" data-ad-view="analytics">
+        <svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+        <span class="ad-nav-label">Analytics</span>
+      </a>
+      
+      <span class="ad-nav-section-label">Listings & Leads</span>
+      
+      <a class="ad-nav-item" data-ad-view="create-listing">
+        <svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+        <span class="ad-nav-label">Post Listing</span>
+      </a>
+      
+      <a class="ad-nav-item" data-ad-view="recent-listings">
+        <svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+        <span class="ad-nav-label">My Listings</span>
+      </a>
+      
+      <a class="ad-nav-item" data-ad-view="matched-requests">
+        <svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+        <span class="ad-nav-label">Matched Leads</span>
+        <?php if ($userMatchedCount > 0): ?>
+          <span class="ad-nav-badge"><?= $userMatchedCount ?></span>
+        <?php endif; ?>
+      </a>
+      
+      <span class="ad-nav-section-label">Account & Billing</span>
+      
+      <a class="ad-nav-item" data-ad-view="payments">
+        <svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+        <span class="ad-nav-label">Plans & Upgrades</span>
+      </a>
+      
+      <a class="ad-nav-item" data-ad-view="notifications">
+        <svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+        <span class="ad-nav-label">Notifications</span>
+        <?php if (count($unreadNotifs) > 0): ?>
+          <span class="ad-nav-badge"><?= count($unreadNotifs) ?></span>
+        <?php endif; ?>
+      </a>
+      
+      <a class="ad-nav-item" data-ad-view="settings">
+        <svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        <span class="ad-nav-label">Profile Settings</span>
+      </a>
+
+      <div class="ad-divider"></div>
+      
+      <a href="?route=logout" class="ad-nav-item ad-nav-danger">
+        <svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+        <span class="ad-nav-label">Log Out</span>
+      </a>
+    </nav>
+    
+    <div class="ad-sidebar-footer">
+      <div class="ad-system-status-pill">
+        <div class="ad-status-dot"></div>
+        <span>Provider Status: Active</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN CONTENT ===================================== -->
+  <main class="ad-main" id="adMain">
+    <div class="ad-content">
+      
+      <!-- PAGE HEADER -->
+      <header class="ad-page-header">
+        <div class="ad-page-title-wrap">
+          <div class="ad-page-eyebrow" id="adPageEyebrow">Provider Workspace</div>
+          <h1 class="ad-page-title" id="adPageTitle">Your Marketplace Dashboard</h1>
+          <p class="ad-page-sub" id="adPageSub">Track your plan, publish fresh listings, and respond to new leads faster.</p>
+        </div>
+        <div class="ad-page-actions">
+           <div class="ad-user-chip" style="cursor:default">
+             <svg class="ad-svg-icon text-muted" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+             <span id="adClock" style="font-variant-numeric: tabular-nums;">--:--:--</span>
+           </div>
+           <a href="?route=listings" class="ad-btn ad-btn-primary">View Marketplace</a>
+        </div>
+      </header>
+
+      <!-- ==============================================
+           TAB 1: OVERVIEW (Using 'executive' for JS load)
+           ============================================== -->
+      <section class="ad-view active" data-view="executive">
+        <!-- Hero Banner -->
+        <div class="ad-exec-hero">
+          <div class="ad-hero-badge"><div class="dot"></div> Quota Tracking</div>
+          <div class="ad-hero-eyebrow">Current Plan: <?= e(strtoupper($plan['name'] ?? 'FREE')) ?></div>
+          <h2 class="ad-hero-title">Listing Limit: <?= $userPlanLimit ?></h2>
+          <p class="ad-hero-sub">You have used <?= $userListingsCount ?> of your <?= $userPlanLimit ?> allowed listings this cycle.</p>
+          <div class="ad-hero-stats">
+             <div class="ad-hero-stat">
+               <strong data-count="<?= (int)($remainingQuota ?? 0) ?>"><?= (int)($remainingQuota ?? 0) ?></strong>
+               <small>Remaining Quota</small>
+             </div>
+             <div class="ad-hero-stat">
+               <strong data-count="<?= $userMatchedCount ?>"><?= $userMatchedCount ?></strong>
+               <small>Matched Leads</small>
+             </div>
+          </div>
+        </div>
+
+        <?php if (count($unreadNotifs) > 0): ?>
+          <div class="ad-critical-bar">
+            <svg class="ad-svg-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <div>
+              <strong>You have <?= count($unreadNotifs) ?> unread notification<?= count($unreadNotifs) > 1 ? 's' : '' ?></strong>
+              <p>Client requests are waiting for your response.</p>
+            </div>
+            <div class="ad-critical-actions">
+              <button class="ad-critical-chip" data-ad-view="notifications">View Notifications</button>
+            </div>
+          </div>
+        <?php endif; ?>
+
+        <!-- KPI Grid -->
+        <div class="ad-kpi-grid">
+           <article class="ad-kpi-card ad-kpi-blue">
+             <div class="ad-kpi-icon"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></div>
+             <div class="ad-kpi-label">Total Listings</div>
+             <div class="ad-kpi-value" data-count="<?= $userListingsCount ?>"><?= $userListingsCount ?></div>
+             <div class="ad-kpi-trend neutral"><span>Approved + pending</span></div>
+           </article>
+           
+           <article class="ad-kpi-card ad-kpi-gold">
+             <div class="ad-kpi-icon"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg></div>
+             <div class="ad-kpi-label">Matched Requests</div>
+             <div class="ad-kpi-value" data-count="<?= $userMatchedCount ?>"><?= $userMatchedCount ?></div>
+             <div class="ad-kpi-trend up"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg> Inquiries in your area</div>
+           </article>
+
+           <article class="ad-kpi-card ad-kpi-green">
+             <div class="ad-kpi-icon"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg></div>
+             <div class="ad-kpi-label">Account Health</div>
+             <div class="ad-kpi-value">100%</div>
+             <div class="ad-kpi-trend up"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> <span>Verified Profile</span></div>
+           </article>
+
+           <article class="ad-kpi-card ad-kpi-purple">
+             <div class="ad-kpi-icon"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg></div>
+             <div class="ad-kpi-label">Quota Usage</div>
+             <div class="ad-kpi-value"><?= $quotaPercent ?>%</div>
+             <div class="ad-kpi-trend neutral"><span><?= $userListingsCount ?>/<?= $userPlanLimit ?> Used</span></div>
+           </article>
+        </div>
+
+        <div class="ad-grid-2-1">
+          <!-- Recent Leads -->
+          <?php if (!empty($matchedRequests)): ?>
+            <div class="ad-panel">
+              <div class="ad-panel-header">
+                <h3 class="ad-panel-title"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> Latest Incoming Leads</h3>
+                <div class="ad-panel-actions">
+                  <button class="ad-btn ad-btn-xs ad-btn-outline" data-ad-view="matched-requests">View All</button>
+                </div>
+              </div>
+              <div class="ad-panel-body p-0">
+                <div class="ad-list">
+                  <?php foreach (array_slice($matchedRequests, 0, 3) as $req):
+                    $waPhone = preg_replace('/[^0-9]/', '', $req['whatsapp'] ?? $req['phone'] ?? '');
+                    $waMsg = rawurlencode("Hello " . ($req['name'] ?? 'Client') . ", I saw your request on UMUHUZA.ONLINE: " . ($req['description'] ?? ''));
+                    $matchLevel = (int)($req['match_level'] ?? 4);
+                    $matchLabel = $matchLevel === 0 ? 'Cell Match' : ($matchLevel === 1 ? 'Sector Match' : ($matchLevel === 2 ? 'District Match' : 'Province Match'));
+                  ?>
+                  <div class="ad-list-item px-4">
+                     <div class="ad-list-icon bg-success-subtle text-success"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg></div>
+                     <div class="ad-list-body">
+                       <strong><?= e($req['name']) ?> <span class="ad-badge ad-badge-success ms-2"><?= $matchLabel ?></span></strong>
+                       <small>📍 <?= e($req['province']) ?> / <?= e($req['district']) ?> <?= !empty($req['budget']) ? '· '.number_format((float)$req['budget']).' RWF' : '' ?></small>
+                       <p class="small text-muted mt-1 mb-0 text-truncate" style="max-width: 400px;"><?= e($req['description']) ?></p>
+                     </div>
+                     <div class="ad-list-end d-flex gap-2">
+                       <a href="tel:<?= e($req['phone']) ?>" class="ad-btn ad-btn-sm ad-btn-primary"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></a>
+                       <?php if (!empty($waPhone)): ?>
+                         <a href="https://wa.me/<?= $waPhone ?>?text=<?= $waMsg ?>" class="ad-btn ad-btn-sm ad-btn-success" target="_blank"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg></a>
+                       <?php endif; ?>
+                     </div>
+                  </div>
+                  <?php endforeach; ?>
+                </div>
+              </div>
+            </div>
+          <?php endif; ?>
+
+          <!-- Quick Actions -->
+          <div class="ad-panel">
+            <div class="ad-panel-header"><h3 class="ad-panel-title"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 2.5l19 19"></path><path d="M2 12h2"></path><path d="M12 2v2"></path><path d="M20 12h2"></path><path d="M12 20v2"></path><path d="M4.9 4.9l1.4 1.4"></path><path d="M17.7 17.7l1.4 1.4"></path><path d="M17.7 6.3l1.4-1.4"></path><path d="M4.9 19.1l1.4-1.4"></path></svg> Quick Actions</h3></div>
+            <div class="ad-panel-body">
+              <div class="d-flex flex-column gap-2">
+                <button class="ad-btn ad-btn-primary w-100 justify-content-center" data-ad-view="create-listing">
+                  <svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg> Post New Listing
+                </button>
+                <button class="ad-btn ad-btn-ghost w-100 justify-content-center" data-ad-view="matched-requests">
+                  <svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg> View Matched Leads (<?= $userMatchedCount ?>)
+                </button>
+                <button class="ad-btn ad-btn-outline w-100 justify-content-center" data-ad-view="payments">
+                  <svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"></polyline></svg> Upgrade Subscription
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==============================================
+           TAB 2: ANALYTICS
+           ============================================== -->
+      <section class="ad-view" data-view="analytics">
+        <div class="ad-panel mb-4">
+          <div class="ad-panel-header">
+             <h3 class="ad-panel-title"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg> Monthly Performance (<?= date('F Y') ?>)</h3>
+          </div>
+          <div class="ad-panel-body">
+             <div class="ad-grid-3">
+               <div class="ad-sub-stat">
+                 <label>Listings Posted</label>
+                 <strong><?= $userListingsCount ?></strong>
+                 <small class="text-success">Active on marketplace</small>
+               </div>
+               <div class="ad-sub-stat">
+                 <label>Client Matches</label>
+                 <strong><?= $userMatchedCount ?></strong>
+                 <small class="text-primary">Leads in your zone</small>
+               </div>
+               <div class="ad-sub-stat">
+                 <label>Listing Quota</label>
+                 <strong><?= $userListingsCount ?> / <?= $userPlanLimit ?></strong>
+                 <div class="ad-progress-bar mt-2"><div class="ad-progress-fill" data-width="<?= $quotaPercent ?>%" style="background:var(--ad-primary);"></div></div>
+               </div>
+             </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==============================================
+           TAB 3: CREATE LISTING
+           ============================================== -->
+      <section class="ad-view" data-view="create-listing">
+        <div class="ad-panel mb-4">
+          <div class="ad-panel-header">
+             <h3 class="ad-panel-title"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg> Create a new listing</h3>
+          </div>
+          <div class="ad-panel-body">
+            <form class="ad-form-row" style="display:flex; flex-wrap:wrap; gap:16px;" method="POST" action="?route=create-listing" enctype="multipart/form-data">
+              <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
+              
+              <div class="ad-form-group" style="width:100%;">
+                <label>Listing title</label>
+                <input class="ad-form-control" name="title" placeholder="Enter a clear listing title" required />
+              </div>
+              <div class="ad-form-group" style="flex:1; min-width: 250px;">
+                <label>Price</label>
+                <input class="ad-form-control" name="price" placeholder="Amount in RWF" required />
+              </div>
+              <div class="ad-form-group" style="flex:1; min-width: 250px;">
+                <label>Province</label>
+                <input class="ad-form-control" name="province" placeholder="Kigali" />
+              </div>
+              <div class="ad-form-group" style="flex:1; min-width: 250px;">
+                <label>District</label>
+                <input class="ad-form-control" name="district" placeholder="Gasabo" />
+              </div>
+              <div class="ad-form-group" style="flex:1; min-width: 250px;">
+                <label>Sector</label>
+                <input class="ad-form-control" name="sector" placeholder="Kacyiru" />
+              </div>
+              <div class="ad-form-group" style="flex:1; min-width: 250px;">
+                <label>Cell</label>
+                <input class="ad-form-control" name="cell" placeholder="Kamutwa" />
+              </div>
+              <div class="ad-form-group" style="width:100%;">
+                <label>Description</label>
+                <textarea class="ad-form-control" name="description" rows="4" placeholder="Describe what buyers or clients will get"></textarea>
+              </div>
+              <div class="ad-form-group" style="width:100%;">
+                <label>Listing photos (1 to 5 photos)</label>
+                <input class="ad-form-control" type="file" name="images[]" multiple accept="image/jpeg,image/png,image/webp,image/gif" style="padding-top:12px;" />
+                <small class="text-muted mt-1">Supported: JPG, PNG, WEBP, GIF. Photos per post: 1 to 5. Size: 5 KB – 5 MB per photo.</small>
+              </div>
+              <div style="width:100%; margin-top:16px;">
+                <button class="ad-btn ad-btn-primary" type="submit">Publish listing</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==============================================
+           TAB 4: RECENT LISTINGS
+           ============================================== -->
+      <section class="ad-view" data-view="recent-listings">
+        <div class="ad-panel mb-4">
+          <div class="ad-panel-header">
+             <h3 class="ad-panel-title"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg> My Recent Listings</h3>
+          </div>
+          <div class="ad-panel-body p-0">
+             <?php if (!empty($listings)): ?>
+               <div class="ad-table-wrap">
+                 <table class="ad-table">
+                   <thead>
+                     <tr>
+                       <th>Title</th>
+                       <th>Location</th>
+                       <th>Price</th>
+                       <th>Status</th>
+                     </tr>
+                   </thead>
+                   <tbody>
+                     <?php foreach ($listings as $item): ?>
+                       <tr>
+                         <td class="ad-table-name"><?= e($item['title']) ?></td>
+                         <td class="ad-table-muted"><?= e($item['province']) ?> / <?= e($item['district']) ?></td>
+                         <td><?= formatPrice($item['price'] ?? 0) ?></td>
+                         <td>
+                           <?php $status = $item['status'] ?? 'pending'; ?>
+                           <span class="ad-badge <?= $status === 'approved' || $status === 'active' ? 'ad-badge-success' : 'ad-badge-warning' ?>">
+                             <div class="ad-badge-dot"></div> <?= ucfirst(e($status)) ?>
+                           </span>
+                         </td>
+                       </tr>
+                     <?php endforeach; ?>
+                   </tbody>
+                 </table>
+               </div>
+             <?php else: ?>
+               <div class="ad-empty">
+                 <svg class="ad-svg-icon mb-3 text-muted" viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
+                 <p>You have no listings yet.</p>
+               </div>
+             <?php endif; ?>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==============================================
+           TAB 5: MATCHED LEADS
+           ============================================== -->
+      <section class="ad-view" data-view="matched-requests">
+        <div class="ad-panel mb-4">
+          <div class="ad-panel-header">
+             <h3 class="ad-panel-title"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg> Matched Client Leads & Inquiries</h3>
+             <span class="ad-badge ad-badge-info"><?= count($matchedRequests) ?> Active Leads</span>
+          </div>
+          <div class="ad-panel-body" style="background:var(--ad-surface-2);">
+             <?php if (($blockedLeadsCount ?? 0) > 0): ?>
+               <div class="ad-critical-bar mb-4">
+                 <svg class="ad-svg-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                 <div>
+                   <strong>Delivery Limit Reached</strong>
+                   <p>You have <?= (int)$blockedLeadsCount ?> blocked leads. Upgrade plan to receive unlimited leads.</p>
+                 </div>
+                 <div class="ad-critical-actions">
+                   <button class="ad-critical-chip" data-ad-view="payments">Upgrade Plan</button>
+                 </div>
+               </div>
+             <?php endif; ?>
+
+             <?php if (!empty($matchedRequests)): ?>
+               <div class="d-flex flex-column" style="gap:16px;">
+                 <?php foreach ($matchedRequests as $req): 
+                    $matchLevel = (int)($req['match_level'] ?? 4);
+                    $matchLabel = $matchLevel === 0 ? 'Exact Cell Match' : ($matchLevel === 1 ? 'Sector Match' : ($matchLevel === 2 ? 'District Match' : 'Province Match'));
+                    $waPhone = preg_replace('/[^0-9]/', '', $req['whatsapp'] ?? $req['phone'] ?? '');
+                    $waMessage = rawurlencode("Hello " . ($req['name'] ?? 'Client') . ", I saw your request on UMUHUZA.ONLINE: " . ($req['description'] ?? ''));
+                 ?>
+                 <div class="ad-panel shadow-sm" style="border: 1px solid var(--ad-border);">
+                   <div class="ad-panel-body">
+                      <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+                         <div>
+                            <span class="ad-badge ad-badge-muted me-2"><?= e(strtoupper($req['type'] ?? 'SERVICE REQUEST')) ?></span>
+                            <span class="ad-badge ad-badge-success me-2"><?= $matchLabel ?></span>
+                            <strong style="font-size: 1.1rem; display:block; margin-top:6px;"><?= e($req['name']) ?></strong>
+                         </div>
+                         <small style="color:var(--ad-muted-lt);"><?= e($req['created_at']) ?></small>
+                      </div>
+                      <div style="display:flex; gap:16px; margin:16px 0; background:var(--ad-surface-2); padding:16px; border-radius:6px; border:1px solid var(--ad-border);">
+                         <div style="flex:1;">
+                           <label style="font-size:0.75rem; color:var(--ad-muted); font-weight:700; display:block;">📍 Location:</label>
+                           <span style="font-size:0.85rem;"><?= e($req['province']) ?> / <?= e($req['district']) ?> <?= !empty($req['sector']) ? '/ '.e($req['sector']) : '' ?></span>
+                         </div>
+                         <div style="flex:1;">
+                           <label style="font-size:0.75rem; color:var(--ad-muted); font-weight:700; display:block;">💰 Budget:</label>
+                           <?php if (!empty($req['budget'])): ?>
+                             <span class="ad-badge ad-badge-success"><?= number_format((float)$req['budget']) ?> RWF</span>
+                           <?php else: ?>
+                             <span class="ad-badge ad-badge-muted">Negotiable</span>
+                           <?php endif; ?>
+                         </div>
+                      </div>
+                      <div style="margin-bottom:16px;">
+                         <label style="font-size:0.75rem; color:var(--ad-muted); font-weight:700; display:block; margin-bottom:4px;">CLIENT REQUIREMENT DETAILS:</label>
+                         <p style="font-size:0.85rem; margin:0; white-space: pre-line; line-height:1.6;"><?= e($req['description']) ?></p>
+                      </div>
+                      <div style="display:flex; gap:10px; padding-top:16px; border-top:1px solid var(--ad-border);">
+                         <a href="tel:<?= e($req['phone']) ?>" class="ad-btn ad-btn-primary ad-btn-sm"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg> Call Client (<?= e($req['phone']) ?>)</a>
+                         <?php if (!empty($waPhone)): ?>
+                           <a href="https://wa.me/<?= $waPhone ?>?text=<?= $waMessage ?>" class="ad-btn ad-btn-success ad-btn-sm" target="_blank"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg> WhatsApp Client</a>
+                         <?php endif; ?>
+                      </div>
+                   </div>
+                 </div>
+                 <?php endforeach; ?>
+               </div>
+             <?php else: ?>
+               <div class="ad-empty">
+                 <svg class="ad-svg-icon mb-3 text-muted" viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+                 <p>No matching requests found yet.</p>
+               </div>
+             <?php endif; ?>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==============================================
+           TAB 6: PAYMENTS & PLANS
+           ============================================== -->
+      <section class="ad-view" data-view="payments">
+        <div class="ad-panel mb-4">
+          <div class="ad-panel-header"><h3 class="ad-panel-title"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg> Upgrade Plan & Payments</h3></div>
+          <div class="ad-panel-body">
+             <div class="ad-grid-3">
+               <!-- Free Plan -->
+               <div class="ad-panel <?= $activePlanId === 1 ? 'border-primary' : '' ?>" style="<?= $activePlanId === 1 ? 'box-shadow: 0 0 0 2px var(--ad-primary);' : '' ?>">
+                 <div class="ad-panel-body text-center" style="display:flex;flex-direction:column;align-items:center;">
+                   <h4 style="font-weight:700;margin:0;">Free Plan</h4>
+                   <div style="font-size:1.8rem; font-weight:800; margin:16px 0;">0 <small style="font-size:0.8rem; color:var(--ad-muted);">RWF/mo</small></div>
+                   <ul style="list-style:none; padding:0; font-size:0.8rem; color:var(--ad-muted); text-align:left; width:100%; margin:0;">
+                     <li style="margin-bottom:6px;"><svg class="ad-svg-icon text-success" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> 5 Listings quota</li>
+                     <li><svg class="ad-svg-icon text-success" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Standard ranking</li>
+                   </ul>
+                   <?php if ($activePlanId === 1): ?><div class="ad-badge ad-badge-primary" style="margin-top:16px;">Active Plan</div><?php endif; ?>
+                 </div>
+               </div>
+               <!-- Premium Plan -->
+               <div class="ad-panel <?= $activePlanId === 2 ? 'border-warning' : '' ?>" style="<?= $activePlanId === 2 ? 'box-shadow: 0 0 0 2px var(--ad-warning);' : '' ?>">
+                 <div class="ad-panel-body text-center" style="display:flex;flex-direction:column;align-items:center;">
+                   <h4 style="font-weight:700;margin:0;color:var(--ad-warning);">Premium Plan</h4>
+                   <div style="font-size:1.8rem; font-weight:800; margin:16px 0;">3,000 <small style="font-size:0.8rem; color:var(--ad-muted);">RWF/mo</small></div>
+                   <ul style="list-style:none; padding:0; font-size:0.8rem; color:var(--ad-muted); text-align:left; width:100%; margin:0;">
+                     <li style="margin-bottom:6px;"><svg class="ad-svg-icon text-success" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> 20 Listings quota</li>
+                     <li><svg class="ad-svg-icon text-success" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Priority placement</li>
+                   </ul>
+                   <?php if ($activePlanId === 2): ?><div class="ad-badge ad-badge-warning" style="margin-top:16px;">Active Plan</div><?php endif; ?>
+                 </div>
+               </div>
+               <!-- Super Plan -->
+               <div class="ad-panel <?= $activePlanId === 3 ? 'border-success' : '' ?>" style="<?= $activePlanId === 3 ? 'box-shadow: 0 0 0 2px var(--ad-success);' : '' ?>">
+                 <div class="ad-panel-body text-center" style="display:flex;flex-direction:column;align-items:center;">
+                   <h4 style="font-weight:700;margin:0;color:var(--ad-success);">Super Plan</h4>
+                   <div style="font-size:1.8rem; font-weight:800; margin:16px 0;">5,000 <small style="font-size:0.8rem; color:var(--ad-muted);">RWF/mo</small></div>
+                   <ul style="list-style:none; padding:0; font-size:0.8rem; color:var(--ad-muted); text-align:left; width:100%; margin:0;">
+                     <li style="margin-bottom:6px;"><svg class="ad-svg-icon text-success" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Unlimited listings</li>
+                     <li><svg class="ad-svg-icon text-success" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg> Top #1 Ranking</li>
+                   </ul>
+                   <?php if ($activePlanId === 3): ?><div class="ad-badge ad-badge-success" style="margin-top:16px;">Active Plan</div><?php endif; ?>
+                 </div>
+               </div>
+             </div>
+
+             <hr class="ad-divider my-4">
+
+             <form style="display:flex; flex-wrap:wrap; gap:16px;" method="POST" action="?route=upgrade-plan">
+               <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
+               <div class="ad-form-group" style="width:100%;">
+                 <label>Select Plan to Upgrade</label>
+                 <select class="ad-form-control" name="plan_id">
+                   <option value="1" <?= $activePlanId === 1 ? 'selected' : '' ?>>Free Plan (5 listings)</option>
+                   <option value="2" <?= $activePlanId === 2 ? 'selected' : '' ?>>Premium Plan - 3,000 RWF (20 listings)</option>
+                   <option value="3" <?= $activePlanId === 3 ? 'selected' : '' ?>>Super Plan - 5,000 RWF (Unlimited listings)</option>
+                 </select>
+               </div>
+               <div class="ad-form-group" style="width:100%;">
+                 <label>Transaction / Reference ID</label>
+                 <input class="ad-form-control" name="transaction_id" placeholder="Reference from your payment slip" />
+               </div>
+               <div class="ad-form-group" style="width:100%;">
+                 <label>Sender Name</label>
+                 <input class="ad-form-control" name="sender_name" placeholder="Name shown on the payment" />
+               </div>
+               <div class="ad-form-group" style="width:100%;">
+                 <label>Sender Phone</label>
+                 <input class="ad-form-control" name="sender_phone" placeholder="Phone used for payment" />
+               </div>
+               <div class="ad-form-group" style="width:100%;">
+                 <label>Amount (RWF)</label>
+                 <input class="ad-form-control" name="amount" placeholder="Amount sent in RWF" />
+               </div>
+               <div style="width:100%; margin-top:16px;">
+                 <button class="ad-btn ad-btn-primary w-100 justify-content-center" type="submit">Submit Payment for Verification</button>
+               </div>
+             </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==============================================
+           TAB 7: NOTIFICATIONS
+           ============================================== -->
+      <section class="ad-view" data-view="notifications">
+        <div class="ad-panel mb-4">
+          <div class="ad-panel-header">
+             <h3 class="ad-panel-title"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> Notifications Center</h3>
+          </div>
+          <div class="ad-panel-body p-0">
+             <!-- Unread Notifications -->
+             <?php if (!empty($unreadNotifs)): ?>
+               <div class="ad-list">
+                 <?php foreach ($unreadNotifs as $notif): ?>
+                   <div class="ad-list-item px-4" style="cursor:pointer;" onclick="markNotifRead(<?= (int)$notif['id'] ?>)">
+                      <div class="ad-list-icon bg-danger-subtle text-danger"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg></div>
+                      <div class="ad-list-body">
+                        <strong><?= e($notif['client_name'] ?? 'System Alert') ?></strong>
+                        <p class="small text-dark mb-0"><?= e($notif['message']) ?></p>
+                      </div>
+                      <div class="ad-list-end" style="display:flex; flex-direction:column; align-items:flex-end;">
+                        <small class="text-muted mb-2" style="font-size:0.7rem;"><?= e($notif['created_at']) ?></small>
+                        <button class="ad-btn ad-btn-xs ad-btn-outline" onclick="archiveNotif(<?= (int)$notif['id'] ?>); event.stopPropagation();">Archive</button>
+                      </div>
+                   </div>
+                 <?php endforeach; ?>
+               </div>
+             <?php endif; ?>
+             
+             <!-- Read Notifications -->
+             <?php if (!empty($readNotifs)): ?>
+               <div class="ad-list <?= !empty($unreadNotifs) ? 'border-top' : '' ?>">
+                 <?php foreach ($readNotifs as $notif): ?>
+                   <div class="ad-list-item px-4">
+                      <div class="ad-list-icon" style="background:var(--ad-surface-2); color:var(--ad-muted);"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path><polyline points="3 9 12 15 21 9"></polyline></svg></div>
+                      <div class="ad-list-body">
+                        <strong><?= e($notif['client_name'] ?? 'System Alert') ?></strong>
+                        <p class="small text-muted mb-0"><?= e($notif['message']) ?></p>
+                      </div>
+                      <div class="ad-list-end" style="display:flex; flex-direction:column; align-items:flex-end;">
+                        <small class="text-muted mb-2" style="font-size:0.7rem;"><?= e($notif['created_at']) ?></small>
+                        <button class="ad-btn ad-btn-xs ad-btn-ghost" onclick="archiveNotif(<?= (int)$notif['id'] ?>)">Archive</button>
+                      </div>
+                   </div>
+                 <?php endforeach; ?>
+               </div>
+             <?php endif; ?>
+
+             <?php if (empty($unreadNotifs) && empty($readNotifs)): ?>
+               <div class="ad-empty">
+                 <svg class="ad-svg-icon mb-3 text-muted" viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13.73 21a2 2 0 0 1-3.46 0"></path><path d="M18.63 13A17.89 17.89 0 0 1 18 8"></path><path d="M6.26 6.26A5.86 5.86 0 0 0 6 8c0 7-3 9-3 9h14"></path><path d="M18 8a6 6 0 0 0-9.33-5"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
+                 <p>No notifications available.</p>
+               </div>
+             <?php endif; ?>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==============================================
+           TAB 8: PROFILE SETTINGS
+           ============================================== -->
+      <section class="ad-view" data-view="settings">
+        <div class="ad-panel mb-4">
+          <div class="ad-panel-header"><h3 class="ad-panel-title"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg> Account & Profile Settings</h3></div>
+          <div class="ad-panel-body">
+             <form method="POST" action="?route=update-profile" enctype="multipart/form-data" style="display:flex; flex-wrap:wrap; gap:16px;">
+               <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
+               
+               <div class="ad-form-group" style="flex:1; min-width:300px;">
+                 <label>Full Name / Business Name</label>
+                 <input type="text" class="ad-form-control" name="full_name" value="<?= e($user['full_name'] ?? '') ?>" required />
+               </div>
+               <div class="ad-form-group" style="flex:1; min-width:300px;">
+                 <label>Username</label>
+                 <input type="text" class="ad-form-control" name="username" value="<?= e($user['username'] ?? '') ?>" required />
+               </div>
+               <div class="ad-form-group" style="flex:1; min-width:300px;">
+                 <label>Phone Number</label>
+                 <input type="tel" class="ad-form-control" name="phone" value="<?= e($user['phone'] ?? '') ?>" required />
+               </div>
+               <div class="ad-form-group" style="flex:1; min-width:300px;">
+                 <label>WhatsApp Number</label>
+                 <input type="tel" class="ad-form-control" name="whatsapp" value="<?= e($user['whatsapp'] ?? ($user['phone'] ?? '')) ?>" />
+               </div>
+               <div class="ad-form-group" style="flex:1; min-width:300px;">
+                 <label>Email Address</label>
+                 <input type="email" class="ad-form-control" name="email" value="<?= e($user['email'] ?? '') ?>" required />
+               </div>
+               <div class="ad-form-group" style="flex:1; min-width:300px;">
+                 <label>Account Type</label>
+                 <select class="ad-form-control" name="account_type">
+                   <option value="agent" <?= ($user['account_type'] ?? 'agent') === 'agent' ? 'selected' : '' ?>>Real Estate Agent</option>
+                   <option value="service" <?= ($user['account_type'] ?? '') === 'service' || ($user['account_type'] ?? '') === 'provider' ? 'selected' : '' ?>>Professional Service Provider</option>
+                 </select>
+               </div>
+               
+               <div class="ad-form-group" style="width:100%;">
+                 <label style="color:var(--ad-primary);">Full Location Details</label>
+                 <small style="display:block; color:var(--ad-muted); margin-bottom:8px;">Clients are matched with you based on your location. The more precise you are, the better the leads.</small>
+                 <div style="display:flex; flex-wrap:wrap; gap:16px;">
+                   <div style="flex:1; min-width:200px;">
+                     <label style="font-size:0.75rem;">Province</label>
+                     <input type="text" class="ad-form-control" name="province" value="<?= e($user['province'] ?? 'Kigali') ?>" />
+                   </div>
+                   <div style="flex:1; min-width:200px;">
+                     <label style="font-size:0.75rem;">District</label>
+                     <input type="text" class="ad-form-control" name="district" value="<?= e($user['district'] ?? 'Gasabo') ?>" />
+                   </div>
+                   <div style="flex:1; min-width:200px;">
+                     <label style="font-size:0.75rem;">Sector</label>
+                     <input type="text" class="ad-form-control" name="sector" value="<?= e($user['sector'] ?? '') ?>" placeholder="e.g. Kacyiru" />
+                   </div>
+                   <div style="flex:1; min-width:200px;">
+                     <label style="font-size:0.75rem;">Cell (Akagari)</label>
+                     <input type="text" class="ad-form-control" name="cell" value="<?= e($user['cell'] ?? '') ?>" placeholder="e.g. Kamutwa" />
+                   </div>
+                 </div>
+               </div>
+
+               <div style="width:100%; margin-top:16px;">
+                 <button class="ad-btn ad-btn-primary" type="submit">Save Profile Changes</button>
+               </div>
+             </form>
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /.ad-content -->
+  </main><!-- /.ad-main -->
+</div><!-- /.ad-layout -->
+
+<script src="public/assets/js/admin-dashboard.js?v=<?= urlencode(md5_file(__DIR__ . '/../../public/assets/js/admin-dashboard.js')) ?>"></script>
 <script>
-// Mobile Drawer Helpers
-function openMobileDrawer() {
-    const sidebar = document.querySelector('.dashboard-sidebar');
-    const overlay = document.getElementById('providerMobileOverlay');
-    if (sidebar) sidebar.classList.add('show');
-    if (overlay) overlay.classList.add('show');
-}
-
-function closeMobileDrawer() {
-    const sidebar = document.querySelector('.dashboard-sidebar');
-    const overlay = document.getElementById('providerMobileOverlay');
-    if (sidebar) sidebar.classList.remove('show');
-    if (overlay) overlay.classList.remove('show');
-}
-
-// Tab Switching Helper
-function switchToTab(tabTarget) {
-    if (!tabTarget) return;
-    
-    // Normalize target name
-    const cleanTarget = tabTarget.replace('#', '').replace('tab-', '');
-    
-    // Hide all tab panels explicitly
-    document.querySelectorAll('.provider-tab-panel').forEach(function(panel) {
-        panel.style.display = 'none';
-        panel.classList.remove('active');
-    });
-    
-    // Remove active highlight from all nav links
-    document.querySelectorAll('.provider-nav-menu .dash-nav-link').forEach(function(link) {
-        link.classList.remove('active');
-        const linkTab = link.getAttribute('data-provider-tab') || (link.getAttribute('href') ? link.getAttribute('href').replace('#', '') : '');
-        if (linkTab === cleanTarget) {
-            link.classList.add('active');
-        }
-    });
-
-    // Display targeted panel explicitly
-    const targetEl = document.getElementById('tab-' + cleanTarget) || document.getElementById(cleanTarget);
-    if (targetEl) {
-        targetEl.style.display = 'block';
-        targetEl.classList.add('active');
-    }
-
-    // Always close mobile sidebar drawer if open
-    closeMobileDrawer();
-
-    // Scroll smoothly to top of active section on small & big screen
-    if (window.innerWidth < 992 && targetEl) {
-        targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    // Attach click handlers to sidebar navigation links
-    document.querySelectorAll('.provider-nav-menu .dash-nav-link').forEach(function(link) {
-        link.addEventListener('click', function(e) {
-            const href = this.getAttribute('href');
-            if (href && href.startsWith('#')) {
-                e.preventDefault();
-                const tabTarget = this.getAttribute('data-provider-tab') || href.replace('#', '');
-                switchToTab(tabTarget);
-                window.location.hash = tabTarget;
-            }
-        });
-    });
-
-    // Check initial URL hash on page load
-    if (window.location.hash) {
-        const hashTarget = window.location.hash.replace('#', '');
-        switchToTab(hashTarget);
-    } else {
-        switchToTab('overview');
-    }
-});
-
-// Audio & Notification Center Actions
-function playChimeSound(soundFile) {
-    try {
-        const audio = new Audio('public/assets/audio/' + soundFile);
-        audio.play();
-    } catch (error) {
-        console.warn('Audio play failed:', error);
-    }
-}
-
+// Notification Action Logic
 function markNotifRead(id) {
-    fetch('?route=api-mark-read&id=' + id)
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                window.location.reload();
-            }
-        });
+    fetch('?route=api-mark-read&id=' + id).then(res => res.json()).then(data => { if(data.success) window.location.reload(); });
 }
-
 function archiveNotif(id) {
-    fetch('?route=api-archive&id=' + id)
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                window.location.reload();
-            }
-        });
+    fetch('?route=api-archive&id=' + id).then(res => res.json()).then(data => { if(data.success) window.location.reload(); });
 }
-
-// Notification Polling Loop
-document.addEventListener('DOMContentLoaded', function() {
-    document.body.addEventListener('click', function() {
-        try {
-            const audio = new Audio('public/assets/audio/request.wav');
-            audio.volume = 0;
-            audio.play().catch(()=>{});
-        } catch(e){}
-    }, { once: true });
-
-    setInterval(function() {
-        fetch('?route=api-notifications')
-            .then(res => res.json())
-            .then(data => {
-                if (data.unread > 0) {
-                    const latestNotif = data.notifications && data.notifications.length > 0 ? data.notifications[0].message : 'You have a new alert!';
-                    const msg = latestNotif.toLowerCase();
-                    
-                    let soundFile = 'request.wav';
-                    if (msg.includes('payment') || msg.includes('subscription') || msg.includes('activated') || msg.includes('approved')) {
-                        soundFile = 'success.wav';
-                    } else if (msg.includes('listing')) {
-                        soundFile = 'listing.wav';
-                    }
-                    
-                    playChimeSound(soundFile);
-                    
-                    const toast = document.createElement('div');
-                    toast.className = 'alert alert-info position-fixed start-50 translate-middle-x shadow-lg border-primary';
-                    toast.style.cssText = 'bottom: 20px; z-index: 9999; min-width: 320px; animation: slideUp 0.3s ease; background-color: #0d6efd; color: #fff; border-radius: 8px;';
-                    toast.innerHTML = `
-                        <div class="d-flex align-items-center justify-content-between gap-3">
-                            <div class="d-flex align-items-center gap-2">
-                                <span>🔔</span>
-                                <span class="small fw-semibold">${latestNotif}</span>
-                            </div>
-                            <button type="button" class="btn-close btn-close-white" aria-label="Close" onclick="this.parentElement.parentElement.remove()"></button>
-                        </div>
-                    `;
-                    document.body.appendChild(toast);
-                    
-                    fetch('?route=api-mark-notifications-read')
-                        .then(() => {
-                            setTimeout(() => {
-                                window.location.reload();
-                            }, 2000);
-                        });
-                }
-            })
-            .catch(err => console.error('Notification poll error:', err));
-    }, 12000);
-});
 </script>
 
-<style>
-.provider-tab-panel {
-    display: none;
-}
-.provider-tab-panel.active {
-    display: block;
-    animation: fadeIn 0.25s ease;
-}
-.dash-nav-link svg {
-    flex-shrink: 0;
-}
-@keyframes slideUp {
-    from { transform: translate(-50%, 50px); opacity: 0; }
-    to { transform: translate(-50%, 0); opacity: 1; }
-}
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(4px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-.text-secondary-custom {
-    color: #475569 !important;
-}
-</style>
-<?php include __DIR__ . '/../layouts/footer.php'; ?>
+<?php include __DIR__ . '/../layouts/footer.php'; ?>

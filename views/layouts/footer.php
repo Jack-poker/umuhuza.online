@@ -44,5 +44,11 @@
 <script src="public/assets/js/onboarding-premium.js?v=<?= filemtime(__DIR__ . '/../../public/assets/js/onboarding-premium.js') ?>"></script>
 <script src="public/assets/js/wizard.js?v=<?= filemtime(__DIR__ . '/../../public/assets/js/wizard.js') ?>"></script>
 <script src="public/assets/js/marketplace-ui.js?v=<?= filemtime(__DIR__ . '/../../public/assets/js/marketplace-ui.js') ?>"></script>
+<?php if (isLoggedIn()): ?>
+<script>
+    window.VAPID_PUBLIC_KEY = '<?= defined('VAPID_PUBLIC_KEY') ? VAPID_PUBLIC_KEY : '' ?>';
+</script>
+<script src="public/assets/js/push.js?v=<?= filemtime(__DIR__ . '/../../public/assets/js/push.js') ?>"></script>
+<?php endif; ?>
 </body>
 </html>
