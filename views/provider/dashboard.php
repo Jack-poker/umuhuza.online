@@ -293,23 +293,156 @@ $activePlanId = (int)($plan['id'] ?? 1);
              <h3 class="ad-panel-title"><svg class="ad-svg-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg> Monthly Performance (<?= date('F Y') ?>)</h3>
           </div>
           <div class="ad-panel-body">
-             <div class="ad-grid-3">
-               <div class="ad-sub-stat">
-                 <label>Listings Posted</label>
-                 <strong><?= $userListingsCount ?></strong>
-                 <small class="text-success">Active on marketplace</small>
-               </div>
-               <div class="ad-sub-stat">
-                 <label>Client Matches</label>
-                 <strong><?= $userMatchedCount ?></strong>
-                 <small class="text-primary">Leads in your zone</small>
-               </div>
-               <div class="ad-sub-stat">
-                 <label>Listing Quota</label>
-                 <strong><?= $userListingsCount ?> / <?= $userPlanLimit ?></strong>
-                 <div class="ad-progress-bar mt-2"><div class="ad-progress-fill" data-width="<?= $quotaPercent ?>%" style="background:var(--ad-primary);"></div></div>
-               </div>
-             </div>
+             
+<div class="ad-grid-3">
+  <!-- Free Plan -->
+  <div class="ad-panel plan-card <?= $activePlanId === 1 ? 'border-primary' : '' ?>" style="<?= $activePlanId === 1 ? 'box-shadow: 0 0 0 2px var(--ad-primary);' : '' ?> cursor:pointer; transition:transform .2s, box-shadow .2s;" onclick="openPlanModal('free')">
+    <div class="ad-panel-body text-center" style="display:flex;flex-direction:column;align-items:center;">
+      <div style="font-size:2rem; margin-bottom:6px;">🆓</div>
+      <h4 style="font-weight:700;margin:0;">Free Plan</h4>
+      <div style="font-size:2rem; font-weight:800; margin:14px 0; color:#334155;">0 <small style="font-size:0.8rem; color:var(--ad-muted);">RWF/mo</small></div>
+      <ul style="list-style:none; padding:0; font-size:0.82rem; color:var(--ad-muted); text-align:left; width:100%; margin:0 0 14px 0;">
+        <li style="margin-bottom:6px;">✅ 5 Listings per week</li>
+        <li style="margin-bottom:6px;">✅ Standard search ranking</li>
+        <li style="margin-bottom:6px;">✅ Public profile page</li>
+        <li style="margin-bottom:6px;">❌ No priority placement</li>
+        <li>❌ No verified badge</li>
+      </ul>
+      <span style="font-size:0.78rem; color:#0284c7; font-weight:600;">👆 Click to see full details</span>
+      <?php if ($activePlanId === 1): ?><div class="ad-badge ad-badge-primary" style="margin-top:12px;">Active Plan</div><?php endif; ?>
+    </div>
+  </div>
+  <!-- Premium Plan -->
+  <div class="ad-panel plan-card <?= $activePlanId === 2 ? 'border-warning' : '' ?>" style="<?= $activePlanId === 2 ? 'box-shadow: 0 0 0 2px var(--ad-warning);' : '' ?> cursor:pointer; transition:transform .2s, box-shadow .2s; position:relative;" onclick="openPlanModal('premium')">
+    <div style="position:absolute; top:-10px; left:50%; transform:translateX(-50%); background:#f59e0b; color:#fff; font-size:0.72rem; font-weight:700; padding:3px 12px; border-radius:99px; white-space:nowrap;">⭐ MOST POPULAR</div>
+    <div class="ad-panel-body text-center" style="display:flex;flex-direction:column;align-items:center; padding-top:22px;">
+      <div style="font-size:2rem; margin-bottom:6px;">🥇</div>
+      <h4 style="font-weight:700;margin:0;color:#d97706;">Premium Plan</h4>
+      <div style="font-size:2rem; font-weight:800; margin:14px 0; color:#d97706;">3,000 <small style="font-size:0.8rem; color:var(--ad-muted);">RWF/mo</small></div>
+      <ul style="list-style:none; padding:0; font-size:0.82rem; color:var(--ad-muted); text-align:left; width:100%; margin:0 0 14px 0;">
+        <li style="margin-bottom:6px;">✅ 20 Listings per week</li>
+        <li style="margin-bottom:6px;">✅ Priority search placement</li>
+        <li style="margin-bottom:6px;">✅ Verified badge on profile</li>
+        <li style="margin-bottom:6px;">✅ Lead notifications</li>
+        <li>✅ Featured in search results</li>
+      </ul>
+      <span style="font-size:0.78rem; color:#0284c7; font-weight:600;">👆 Click to see full details</span>
+      <?php if ($activePlanId === 2): ?><div class="ad-badge ad-badge-warning" style="margin-top:12px;">Active Plan</div><?php endif; ?>
+    </div>
+  </div>
+  <!-- Super Plan -->
+  <div class="ad-panel plan-card <?= $activePlanId === 3 ? 'border-success' : '' ?>" style="<?= $activePlanId === 3 ? 'box-shadow: 0 0 0 2px var(--ad-success);' : '' ?> cursor:pointer; transition:transform .2s, box-shadow .2s;" onclick="openPlanModal('super')">
+    <div class="ad-panel-body text-center" style="display:flex;flex-direction:column;align-items:center;">
+      <div style="font-size:2rem; margin-bottom:6px;">🚀</div>
+      <h4 style="font-weight:700;margin:0;color:#16a34a;">Super Plan</h4>
+      <div style="font-size:2rem; font-weight:800; margin:14px 0; color:#16a34a;">5,000 <small style="font-size:0.8rem; color:var(--ad-muted);">RWF/mo</small></div>
+      <ul style="list-style:none; padding:0; font-size:0.82rem; color:var(--ad-muted); text-align:left; width:100%; margin:0 0 14px 0;">
+        <li style="margin-bottom:6px;">✅ Unlimited listings</li>
+        <li style="margin-bottom:6px;">✅ #1 Top ranking in search</li>
+        <li style="margin-bottom:6px;">✅ Verified + Super badge</li>
+        <li style="margin-bottom:6px;">✅ Unlimited leads</li>
+        <li style="margin-bottom:6px;">✅ Featured on Home page</li>
+        <li>✅ Priority support</li>
+      </ul>
+      <span style="font-size:0.78rem; color:#0284c7; font-weight:600;">👆 Click to see full details</span>
+      <?php if ($activePlanId === 3): ?><div class="ad-badge ad-badge-success" style="margin-top:12px;">Active Plan</div><?php endif; ?>
+    </div>
+  </div>
+</div>
+
+<!-- Plan Details Modal Overlay -->
+<div id="plan-modal-overlay" onclick="closePlanModal()" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.55); z-index:9999;"></div>
+<!-- Plan Details Modal -->
+<div id="plan-modal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%,-50%); background:#fff; border-radius:18px; padding:32px; max-width:460px; width:90%; z-index:10000; box-shadow:0 20px 60px rgba(0,0,0,0.25); max-height:85vh; overflow-y:auto;">
+  <button onclick="closePlanModal()" style="position:absolute; top:14px; right:16px; background:none; border:none; font-size:1.4rem; cursor:pointer; color:#64748b; line-height:1;">&#10005;</button>
+  <div id="plan-modal-content"></div>
+</div>
+
+<style>.plan-card:hover { transform: translateY(-4px); box-shadow: 0 8px 28px rgba(0,0,0,0.13) !important; }</style>
+
+<script>
+var planDetails = {
+  free: {
+    emoji: "🆓", title: "Free Plan", price: "0 RWF / month", color: "#334155",
+    features: [
+      { ok: true,  text: "5 listings published per week" },
+      { ok: true,  text: "Standard ranking in search results" },
+      { ok: true,  text: "Public provider profile page" },
+      { ok: true,  text: "Client request form visible to clients" },
+      { ok: false, text: "No priority placement in search" },
+      { ok: false, text: "No Verified badge on profile" },
+      { ok: false, text: "No featured listing on Home page" },
+      { ok: false, text: "Leads are limited (capped weekly)" },
+      { ok: false, text: "No dedicated customer support" }
+    ],
+    note: "Great for getting started. Upgrade anytime to grow faster.",
+    planId: 1
+  },
+  premium: {
+    emoji: "🥇", title: "Premium Plan", price: "3,000 RWF / month", color: "#d97706",
+    features: [
+      { ok: true, text: "20 listings published per week" },
+      { ok: true, text: "Priority placement in search results" },
+      { ok: true, text: "Verified badge displayed on your profile" },
+      { ok: true, text: "Lead notifications via SMS & in-app" },
+      { ok: true, text: "Featured in search results carousel" },
+      { ok: true, text: "Public profile with contact button" },
+      { ok: true, text: "Client requests sent directly to you" },
+      { ok: false, text: "Not featured on the Home page hero" },
+      { ok: false, text: "No #1 top ranking guarantee" }
+    ],
+    note: "Best value for growing agents and service providers.",
+    planId: 2
+  },
+  super: {
+    emoji: "🚀", title: "Super Plan", price: "5,000 RWF / month", color: "#16a34a",
+    features: [
+      { ok: true, text: "Unlimited listings — no weekly cap" },
+      { ok: true, text: "#1 Top ranking in all search results" },
+      { ok: true, text: "Verified badge + Super Provider tag" },
+      { ok: true, text: "Unlimited leads and client contacts" },
+      { ok: true, text: "Featured on the Home page hero section" },
+      { ok: true, text: "Priority placement above all other plans" },
+      { ok: true, text: "Direct WhatsApp & phone button on profile" },
+      { ok: true, text: "Dedicated priority customer support" },
+      { ok: true, text: "Analytics: views, clicks and lead stats" }
+    ],
+    note: "Maximum visibility. Dominate the marketplace and grow fast.",
+    planId: 3
+  }
+};
+
+function openPlanModal(planKey) {
+  var plan = planDetails[planKey];
+  var rows = plan.features.map(function(f) {
+    return "<li style=\"margin-bottom:9px;display:flex;align-items:flex-start;gap:8px;\">" +
+      "<span style=\"font-size:1rem;flex-shrink:0;\">" + (f.ok ? "✅" : "❌") + "</span>" +
+      "<span style=\"color:" + (f.ok ? "#0f172a" : "#94a3b8") + ";font-size:0.9rem;\">" + f.text + "</span></li>";
+  }).join("");
+
+  document.getElementById("plan-modal-content").innerHTML =
+    "<div style=\"text-align:center;margin-bottom:20px;\">" +
+      "<div style=\"font-size:3rem;\">" + plan.emoji + "</div>" +
+      "<h3 style=\"margin:8px 0 4px;font-weight:800;color:" + plan.color + ";\">" + plan.title + "</h3>" +
+      "<div style=\"font-size:1.5rem;font-weight:800;color:" + plan.color + ";\">" + plan.price + "</div>" +
+    "</div>" +
+    "<ul style=\"list-style:none;padding:0;margin:0 0 18px 0;\">" + rows + "</ul>" +
+    "<div style=\"background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:12px 16px;color:#166534;font-size:0.88rem;margin-bottom:20px;\">💡 " + plan.note + "</div>" +
+    "<button onclick=\"closePlanModal();var sel=document.getElementById('plan-select-upgrade');sel.value=" + plan.planId + ";sel.dispatchEvent(new Event('change'));setTimeout(function(){var u=document.getElementById('ussd-box');if(u)u.scrollIntoView({behavior:'smooth'});},200);\" " +
+      "style=\"width:100%;padding:13px;background:linear-gradient(135deg,#ffcc00,#ffa500);color:#1a1a1a;font-weight:700;font-size:1rem;border:none;border-radius:10px;cursor:pointer;\">" +
+      "Choose This Plan & Pay 📲" +
+    "</button>";
+
+  document.getElementById("plan-modal-overlay").style.display = "block";
+  document.getElementById("plan-modal").style.display = "block";
+}
+
+function closePlanModal() {
+  document.getElementById("plan-modal-overlay").style.display = "none";
+  document.getElementById("plan-modal").style.display = "none";
+}
+</script>
+
           </div>
         </div>
       </section>
@@ -539,13 +672,57 @@ $activePlanId = (int)($plan['id'] ?? 1);
                </div>
              </div>
 
-             <hr class="ad-divider my-4">
+             <!-- ===== MTN MoMo Payment Instructions (dynamic) ===== -->
+             <div style="background-color: #f0f9ff; border: 1px solid #bae6fd; border-radius: 14px; padding: 22px; margin-bottom: 24px; width: 100%;">
+               <h5 style="margin-top:0; margin-bottom:14px; font-weight:700; font-size:1.05rem; color:#0369a1; display:flex; align-items:center; gap:8px;">
+                 <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="#0369a1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2" ry="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+                 MTN MoMo Payment Instructions
+               </h5>
 
+               <!-- Step-by-step guide -->
+               <ol style="margin:0 0 18px 0; padding-left:20px; color:#0c4a6e; font-size:0.93rem; line-height:1.85;">
+                 <li><strong>Select your plan</strong> below (Premium or Super).</li>
+                 <li>Open your phone <strong>Dialer</strong> and dial the USSD code shown below.</li>
+                 <li>Follow the MTN MoMo prompts and confirm the payment.</li>
+                 <li>You will receive an <strong>SMS confirmation</strong> with a Transaction ID.</li>
+                 <li>Fill in the form below with your <strong>Transaction ID, name, phone number, and amount</strong>.</li>
+                 <li>Click <strong>"Submit Payment for Verification"</strong> — our team will activate your plan within 24 hours.</li>
+               </ol>
+
+               <!-- Dynamic USSD box (hidden until a paid plan is selected) -->
+               <div id="ussd-box" style="display:none; background:#fff; border-radius:10px; padding:16px 20px; border:2px solid #bae6fd; margin-bottom:4px;">
+                 <div style="margin-bottom:10px;">
+                   <span style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.6px; color:#64748b; font-weight:600;">Receiver Name</span><br>
+                   <span style="font-size:1rem; font-weight:700; color:#0f172a;">inshutiangeheritier</span>
+                 </div>
+                 <div style="margin-bottom:10px;">
+                   <span style="font-size:0.8rem; text-transform:uppercase; letter-spacing:0.6px; color:#64748b; font-weight:600;">Dial this USSD code on your phone</span><br>
+                   <span id="ussd-code" style="font-family:monospace; font-size:1.35rem; color:#0284c7; font-weight:800; letter-spacing:1px;">*182*1*1*0795032098*3000#</span>
+                 </div>
+                  <!-- Pay Now Button — opens phone dialer automatically -->
+                  <a id="pay-now-btn" href="tel:*182*1*1*0795032098*3000%23"
+                     style="display:inline-flex; align-items:center; gap:12px; background:linear-gradient(135deg,#ffcc00,#ffa500); color:#1a1a1a; font-weight:700; font-size:1rem; padding:13px 24px; border-radius:10px; text-decoration:none; margin-bottom:14px; width:100%; justify-content:center; box-shadow:0 4px 14px rgba(255,165,0,0.35);">
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/93/New-mtn-logo.jpg/120px-New-mtn-logo.jpg"
+                         alt="MTN" style="height:28px; width:auto; border-radius:4px; background:#fff; padding:2px 4px;" />
+                    Pay Now via MTN MoMo
+                  </a>
+                  <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 14px; color:#166534; font-size:0.88rem;">
+                   💡 <strong>Tip:</strong> After dialing, select option 1 → confirm with your PIN. You'll get an SMS with your Transaction ID — copy it and paste it below.
+                 </div>
+               </div>
+
+               <!-- Shown when Free plan is selected -->
+               <div id="free-plan-notice" style="background:#fef9c3; border:1px solid #fde047; border-radius:10px; padding:14px 18px; color:#713f12; font-size:0.9rem;">
+                 ℹ️ <strong>Free Plan selected.</strong> No payment needed. Choose Premium or Super plan to see payment details.
+               </div>
+             </div>
+
+             <!-- ===== Upgrade Form ===== -->
              <form style="display:flex; flex-wrap:wrap; gap:16px;" method="POST" action="?route=upgrade-plan">
                <input type="hidden" name="csrf_token" value="<?php echo e(generateCsrfToken()); ?>">
                <div class="ad-form-group" style="width:100%;">
                  <label>Select Plan to Upgrade</label>
-                 <select class="ad-form-control" name="plan_id">
+                 <select class="ad-form-control" name="plan_id" id="plan-select-upgrade">
                    <option value="1" <?= $activePlanId === 1 ? 'selected' : '' ?>>Free Plan (5 listings)</option>
                    <option value="2" <?= $activePlanId === 2 ? 'selected' : '' ?>>Premium Plan - 3,000 RWF (20 listings)</option>
                    <option value="3" <?= $activePlanId === 3 ? 'selected' : '' ?>>Super Plan - 5,000 RWF (Unlimited listings)</option>
@@ -553,24 +730,62 @@ $activePlanId = (int)($plan['id'] ?? 1);
                </div>
                <div class="ad-form-group" style="width:100%;">
                  <label>Transaction / Reference ID</label>
-                 <input class="ad-form-control" name="transaction_id" placeholder="Reference from your payment slip" />
+                 <input class="ad-form-control" name="transaction_id" placeholder="Copy from MTN SMS confirmation" />
                </div>
                <div class="ad-form-group" style="width:100%;">
                  <label>Sender Name</label>
-                 <input class="ad-form-control" name="sender_name" placeholder="Name shown on the payment" />
+                 <input class="ad-form-control" name="sender_name" placeholder="Your name as shown on MoMo" />
                </div>
                <div class="ad-form-group" style="width:100%;">
                  <label>Sender Phone</label>
-                 <input class="ad-form-control" name="sender_phone" placeholder="Phone used for payment" />
+                 <input class="ad-form-control" name="sender_phone" placeholder="MTN number you paid from" />
                </div>
                <div class="ad-form-group" style="width:100%;">
                  <label>Amount (RWF)</label>
-                 <input class="ad-form-control" name="amount" placeholder="Amount sent in RWF" />
+                 <input class="ad-form-control" name="amount" id="amount-input-upgrade" placeholder="3000 or 5000" readonly style="background:#f8fafc; color:#0f172a; font-weight:600;" />
                </div>
                <div style="width:100%; margin-top:16px;">
                  <button class="ad-btn ad-btn-primary w-100 justify-content-center" type="submit">Submit Payment for Verification</button>
                </div>
              </form>
+
+             <script>
+             (function () {
+               var select = document.getElementById('plan-select-upgrade');
+               var ussdBox = document.getElementById('ussd-box');
+               var freePlanNotice = document.getElementById('free-plan-notice');
+               var ussdCode = document.getElementById('ussd-code');
+               var amountInput = document.getElementById('amount-input-upgrade');
+
+               var payBtn = document.getElementById('pay-now-btn');
+
+               var planData = {
+                 '1': { ussd: null, tel: '', amount: '' },
+                 '2': { ussd: '*182*1*1*0795032098*3000#', tel: 'tel:*182*1*1*0795032098*3000%23', amount: '3000' },
+                 '3': { ussd: '*182*1*1*0795032098*5000#', tel: 'tel:*182*1*1*0795032098*5000%23', amount: '5000' }
+               };
+
+               function updatePaymentUI() {
+                 var val = select.value;
+                 var data = planData[val] || planData['1'];
+                 if (data.ussd) {
+                   ussdCode.textContent = data.ussd;
+                   if (payBtn) payBtn.href = data.tel;
+                   amountInput.value = data.amount;
+                   ussdBox.style.display = 'block';
+                   freePlanNotice.style.display = 'none';
+                 } else {
+                   ussdBox.style.display = 'none';
+                   freePlanNotice.style.display = 'block';
+                   amountInput.value = '';
+                 }
+               }
+
+               select.addEventListener('change', updatePaymentUI);
+               updatePaymentUI(); // run on page load
+             })();
+             </script>
+
           </div>
         </div>
       </section>
