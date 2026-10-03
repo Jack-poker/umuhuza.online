@@ -144,6 +144,29 @@ if ($route === 'api-notifications') {
     exit;
 }
 
+if ($route === 'api-locations') {
+    header('Content-Type: application/json');
+    if (!$pdo) {
+        echo json_encode([]);
+        exit;
+    }
+    require_once __DIR__ . '/app/models/Location.php';
+    $type = $_GET['type'] ?? 'provinces';
+    $parentId = (int)($_GET['parent_id'] ?? 0);
+    $data = [];
+    if ($type === 'provinces') {
+        $data = LocationModel::provinces($pdo);
+    } elseif ($type === 'districts') {
+        $data = LocationModel::districts($pdo, $parentId);
+    } elseif ($type === 'sectors') {
+        $data = LocationModel::sectors($pdo, $parentId);
+    } elseif ($type === 'cells') {
+        $data = LocationModel::cells($pdo, $parentId);
+    }
+    echo json_encode($data);
+    exit;
+}
+
 if ($route === 'api-mark-notifications-read') {
     header('Content-Type: application/json');
     if (isLoggedIn() && $pdo) {

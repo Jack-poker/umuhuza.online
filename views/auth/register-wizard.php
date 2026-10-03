@@ -123,17 +123,23 @@
 
           <div class="step-field">
             <label class="form-label">Province</label>
-            <input class="form-control form-control-lg" type="text" id="province" name="province" placeholder="e.g., Kigali" required />
+            <select class="form-select form-select-lg location-dropdown" id="province" name="province" data-type="provinces" data-target="#district" required>
+              <option value="">Select Province</option>
+            </select>
           </div>
 
           <div class="step-field">
             <label class="form-label">District</label>
-            <input class="form-control form-control-lg" type="text" id="district" name="district" placeholder="e.g., Gasabo" required />
+            <select class="form-select form-select-lg location-dropdown" id="district" name="district" data-type="districts" data-target="#sector" required disabled>
+              <option value="">Select District</option>
+            </select>
           </div>
 
           <div class="step-field">
             <label class="form-label">Sector</label>
-            <input class="form-control form-control-lg" type="text" id="sector" name="sector" placeholder="e.g., Remera" />
+            <select class="form-select form-select-lg location-dropdown" id="sector" name="sector" data-type="sectors" disabled>
+              <option value="">Select Sector</option>
+            </select>
           </div>
 
           <div class="optional-section">
@@ -201,12 +207,16 @@
 
           <div class="step-field">
             <label class="form-label">Province</label>
-            <input class="form-control form-control-lg" type="text" id="providerProvince" name="province" placeholder="e.g., Kigali" required />
+            <select class="form-control form-control-lg location-dropdown" id="providerProvince" name="province" data-type="provinces" data-target="#providerDistrict" required>
+              <option value="">Select Province</option>
+            </select>
           </div>
 
           <div class="step-field">
             <label class="form-label">District</label>
-            <input class="form-control form-control-lg" type="text" id="providerDistrict" name="district" placeholder="e.g., Gasabo" required />
+            <select class="form-control form-control-lg location-dropdown" id="providerDistrict" name="district" data-type="districts" required disabled>
+              <option value="">Select District</option>
+            </select>
           </div>
 
           <div class="optional-section">
@@ -245,4 +255,70 @@
     </div>
   </div>
 </section>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Fetch Provinces on Load
+    fetch('?route=api-locations&type=provinces')
+        .then(res => res.json())
+        .then(data => {
+            document.querySelectorAll('.location-dropdown[data-type="provinces"]').forEach(select => {
+                data.forEach(prov => {
+                    const option = document.createElement('option');
+                    option.value = prov.name;
+                    option.dataset.id = prov.id;
+                    option.textContent = prov.name;
+                    select.appendChild(option);
+                });
+            });
+        });
+
+    // 2. Handle Cascading Selection
+    document.querySelectorAll('.location-dropdown').forEach(select => {
+        select.addEventListener('change', function() {
+            const targetSelector = this.dataset.target;
+            if (!targetSelector) return;
+            
+            const targetSelect = document.querySelector(targetSelector);
+            if (!targetSelect) return;
+
+            // Reset target and its children
+            targetSelect.innerHTML = `<option value="">Select ${targetSelect.getAttribute('name')}</option>`;
+            targetSelect.disabled = true;
+            
+            // If there's a child of the target, reset it too (e.g. Sector when Province changes)
+            const grandChildSelector = targetSelect.dataset.target;
+            if (grandChildSelector) {
+                const grandChild = document.querySelector(grandChildSelector);
+                if (grandChild) {
+                    grandChild.innerHTML = `<option value="">Select ${grandChild.getAttribute('name')}</option>`;
+                    grandChild.disabled = true;
+                }
+            }
+
+            const selectedOption = this.options[this.selectedIndex];
+            const parentId = selectedOption.dataset.id;
+            
+            if (!parentId) return;
+
+            const targetType = targetSelect.dataset.type;
+            fetch(`?route=api-locations&type=${targetType}&parent_id=${parentId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        data.forEach(item => {
+                            const option = document.createElement('option');
+                            option.value = item.name; // Keep name to match DB schema (VARCHAR)
+                            option.dataset.id = item.id;
+                            option.textContent = item.name;
+                            targetSelect.appendChild(option);
+                        });
+                        targetSelect.disabled = false;
+                    }
+                });
+        });
+    });
+});
+</script>
+
 <?php include __DIR__ . '/../layouts/footer.php'; ?>
