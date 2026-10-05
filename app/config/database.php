@@ -5,7 +5,7 @@ $DB_NAME = getenv('DB_NAME') ?: 'default';
 $DB_USER = getenv('DB_USER') ?: 'luvi_db';
 $DB_PASS = getenv('DB_PASS') ?: '5ix8aOJnQ65VB86jOw9K8kHUIzXxlPjNxmkxjiMrmGi45daAiyoPIVdfI0ZSPAVb';
 
-require_once __DIR__ . '/vapid.php';
+// require_once __DIR__ . '/vapid.php';
 
 $pdo = null;
 
