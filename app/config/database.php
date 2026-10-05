@@ -1,9 +1,9 @@
 <?php
 
-$DB_HOST = getenv('DB_HOST') ?: '127.0.0.1';
-$DB_NAME = getenv('DB_NAME') ?: 'rwanda_marketplace';
-$DB_USER = getenv('DB_USER') ?: 'root';
-$DB_PASS = getenv('DB_PASS') ?: '';
+$DB_HOST = getenv('DB_HOST') ?: '167.86.94.189';
+$DB_NAME = getenv('DB_NAME') ?: 'default';
+$DB_USER = getenv('DB_USER') ?: 'luvi_db';
+$DB_PASS = getenv('DB_PASS') ?: '5ix8aOJnQ65VB86jOw9K8kHUIzXxlPjNxmkxjiMrmGi45daAiyoPIVdfI0ZSPAVb';
 
 require_once __DIR__ . '/vapid.php';
 
