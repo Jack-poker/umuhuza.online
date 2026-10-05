@@ -18,6 +18,13 @@
   <link rel="stylesheet" href="public/assets/css/wizard-ui.css?v=<?= filemtime(__DIR__ . '/../../public/assets/css/wizard-ui.css') ?>" />
   <link rel="stylesheet" href="public/assets/css/marketplace-ui.css?v=<?= filemtime(__DIR__ . '/../../public/assets/css/marketplace-ui.css') ?>" />
   <link rel="manifest" href="/public/manifest.json" />
+  <!-- Google tag (gtag.js) --><script async src="https://www.googletagmanager.com/gtag/js?id=G-T6ZWR5QNQ9"></script><script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-T6ZWR5QNQ9');
+</script>
 </head>
 <body class="marketplace-body">
 <header class="marketplace-header fixed-top shadow-sm">
