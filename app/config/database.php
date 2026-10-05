@@ -3,7 +3,7 @@
 $DB_HOST = getenv('DB_HOST') ?: '167.86.94.189';
 $DB_NAME = getenv('DB_NAME') ?: 'default';
 $DB_USER = getenv('DB_USER') ?: 'luvi_db';
-$DB_PASS = getenv('DB_PASS') ?: '5ix8aOJnQ65VB86jOw9K8kHUIzXxlPjNxmkxjiMrmGi45daAiyoPIVdfI0ZSPAVb';
+$DB_PASS = getenv('DB_PASS') ?: 'mW8cdTXa8TXU1uKe1NPoFq82NMmz0blR44hfWjxZMGGXhMNUtKq9c0KzkVnF31a9';
 
 // require_once __DIR__ . '/vapid.php';
 
